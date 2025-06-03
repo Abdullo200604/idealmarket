@@ -1,0 +1,29 @@
+<!-- market/templates/market/_products_table.html -->
+<table border="1">
+    <tr>
+        <th>Mahsulot</th>
+        <th>Barcode</th>
+        <th>Ombor</th>
+        <th>Narxi</th>
+        <th>Savatga qo‘shish</th>
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td>{{ product.desc }}</td>
+        <td>{{ product.barcode }}</td>
+        <td>{{ product.ombor.name }}</td>
+        <td>{{ product.s_price }}</td>
+        <td>
+            {% if product.is_active %}
+            <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                <button type="submit">Qo‘shish</button>
+            </form>
+            {% else %}
+                <span style="color: red; font-weight: bold;">Muddati tugagan</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>

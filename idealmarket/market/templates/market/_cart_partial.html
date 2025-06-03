@@ -4,7 +4,7 @@
         <th>Mahsulot</th>
         <th>Miqdori</th>
         <th>Jami</th>
-        <th>O‘chirish</th>
+        <th>Harakatlar</th>
     </tr>
     {% for item in cart_items %}
     <tr>
@@ -12,12 +12,28 @@
         <td>{{ item.quantity }}</td>
         <td>{{ item.item_total }}</td>
         <td>
-            <form method="post" action="{% url 'cart_remove' item.product.id %}" class="cart-remove-form">
+            <button class="update-cart" data-id="{{ item.product.id }}" data-action="add">+</button>
+            <button class="update-cart" data-id="{{ item.product.id }}" data-action="remove">-</button>
+            <form method="post" action="{% url 'cart_remove' item.product.id %}" class="cart-remove-form" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit">O‘chirish</button>
             </form>
         </td>
     </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">Savat bo‘sh!</td>
+    </tr>
     {% endfor %}
 </table>
+
 <p><b>Umumiy summa: {{ total }}</b></p>
+
+<form method="post" action="{% url 'cart_clear' %}" id="cart-clear-form">
+    {% csrf_token %}
+    <button type="submit">Savatni tozalash</button>
+</form>
+<form method="post" action="{% url 'cart_checkout' %}" id="cart-checkout-form">
+    {% csrf_token %}
+    <button type="submit">Chekni yakunlash</button>
+</form>

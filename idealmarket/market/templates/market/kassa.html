@@ -1,53 +1,31 @@
-<!-- market/templates/market/kassa.html -->
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
+    <meta charset="UTF-8">
     <title>Kassa oynasi</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- PDFmake uchun -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        th { background: #f2f2f2; }
+        #cart-message { margin-top: 10px; }
+    </style>
 </head>
 <body>
 
 <h2>Kassa oynasi</h2>
 
 <!-- Qidiruv formasi -->
-<form method="get" action="">
-    <input type="text" name="q" placeholder="Qidiruv (nom yoki barcode)" value="{{ query }}">
-    <button type="submit">Qidirish</button>
-</form>
-<br>
+<input type="text" id="search-input" placeholder="Qidiruv (nom yoki barcode)" autocomplete="off">
 
-<h3>Mahsulotlar</h3>
-<table border="1">
-    <tr>
-        <th>Mahsulot</th>
-        <th>Barcode</th>
-        <th>Ombor</th>
-        <th>Narxi</th>
-        <th>Savatga qo‘shish</th>
-    </tr>
-    {% for product in products %}
-    <tr>
-        <td>{{ product.desc }}</td>
-        <td>{{ product.barcode }}</td>
-        <td>{{ product.ombor.name }}</td>
-        <td>{{ product.s_price }}</td>
-        <td>
-            {% if product.is_active %}
-            <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
-                {% csrf_token %}
-                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
-                <button type="submit">Qo‘shish</button>
-            </form>
-            {% else %}
-                <span style="color: red; font-weight: bold;">Muddati tugagan</span>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<br><br>
+
+<!-- Mahsulotlar jadvali DIV orqali -->
+<div id="products-table">
+    {% include "market/_products_table.html" %}
+</div>
 
 <!-- Savat bo‘limi -->
 <div id="cart-area">
@@ -56,17 +34,30 @@
 <div id="cart-message"></div>
 
 <!-- PDF tugmasi -->
-<button onclick="generatePDF()">Chekni PDFga saqlash</button>
+<button type="button" onclick="generatePDF()">Chekni PDFga saqlash</button>
 <a href="{% url 'sales_list' %}">Cheklar tarixi</a>
 
 <script>
-$(function(){
+$(document).ready(function(){
+    // AJAX qidiruv
+    $('#search-input').on('input', function(){
+        var query = $(this).val();
+        $.ajax({
+            url: "{% url 'kassa' %}",
+            data: {'q': query},
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function(data){
+                $('#products-table').html(data.products_html);
+            }
+        });
+    });
 
+    // AJAX orqali savatga qo'shish va boshqa amallar
     $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form', function(e){
         e.preventDefault();
         var $form = $(this);
         $.ajax({
-            type: 'POST',
+            type: $form.attr('method'),
             url: $form.attr('action'),
             data: $form.serialize(),
             headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
@@ -77,44 +68,69 @@ $(function(){
                 } else {
                     $('#cart-message').html('');
                 }
+            },
+            error: function(xhr){
+                $('#cart-message').html('<b style="color:red;">Xatolik yuz berdi!</b>');
+                console.error(xhr.responseText);
+            }
+        });
+    });
+    // AJAX orqali mahsulot miqdorini o'zgartirish
+    $(document).on('click', '.update-cart', function(e){
+        e.preventDefault();
+        var productId = $(this).data('id');
+        var action = $(this).data('action');
+        var csrftoken = $('[name="csrfmiddlewaretoken"]').first().val();
+
+        $.ajax({
+            type: 'POST',
+            url: `/cart/update/${productId}/`,
+            data: { 'action': action },
+            headers: {'X-CSRFToken': csrftoken},
+            success: function(data){
+                $('#cart-area').html(data.cart_html);
+                $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
+            },
+            error: function(){
+                $('#cart-message').html('<b style="color:red;">Xatolik yuz berdi!</b>');
             }
         });
     });
 
 });
 
+// PDFga saqlash funksiyasi (o‘zgarmaydi)
 function generatePDF() {
     var items = [
         ['Mahsulot', 'Miqdori', 'Jami'],
         {% for item in cart_items %}
         [
-            '{{ item.product.desc|escapejs }}',
-            '{{ item.quantity }}',
-            '{{ item.item_total }}'
+            "{{ item.product.desc|escapejs }}",
+            "{{ item.quantity }}",
+            "{{ item.item_total }}"
         ]{% if not forloop.last %},{% endif %}
         {% endfor %}
     ];
-
     var docDefinition = {
         content: [
-            {text: 'Chek', style: 'header', alignment: 'center'},
+            { text: 'Chek', style: 'header', alignment: 'center' },
             {
                 table: {
                     headerRows: 1,
                     body: items
                 }
             },
-            {text: 'Umumiy summa: {{ total }}', style: 'total', margin: [0, 10, 0, 0]}
+            { text: 'Umumiy summa: {{ total }}', style: 'total', margin: [0, 10, 0, 0] }
         ],
         styles: {
-            header: {fontSize: 16, bold: true, margin: [0, 0, 0, 10]},
-            total: {fontSize: 14, bold: true}
+            header: { fontSize: 16, bold: true, margin: [0, 0, 0, 10] },
+            total: { fontSize: 14, bold: true }
         }
     };
-
     pdfMake.createPdf(docDefinition).download('check.pdf');
 }
 </script>
-
+<br><br>
+<a href="{% url 'statistics' %}">Statistika va hisobotlar</a>
 </body>
 </html>
