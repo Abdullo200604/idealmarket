@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cheklar tarixi</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { border-collapse: collapse; margin: 20px 0; width: 100%; }
+        th, td { border: 1px solid #333; padding: 6px 10px; text-align: left; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+<h2>Cheklar tarixi</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Sana</th>
+        <th>Umumiy summa</th>
+        <th>Batafsil</th>
+    </tr>
+    {% for sale in sales %}
+    <tr>
+        <td>{{ sale.id }}</td>
+        <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+        <td>
+            {{
+                sale.items.all|length > 0|yesno:total_sum|default:"Hisoblash"
+            }}
+        </td>
+        <td>
+            <a href="{% url 'sale_detail' sale.id %}">Ko‘rish</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">Cheklar yo‘q.</td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="{% url 'kassa' %}">Kassaga qaytish</a>
+</body>
+</html>

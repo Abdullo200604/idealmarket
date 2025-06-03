@@ -1,0 +1,23 @@
+<h3>Savat (Chek)</h3>
+<table border="1">
+    <tr>
+        <th>Mahsulot</th>
+        <th>Miqdori</th>
+        <th>Jami</th>
+        <th>O‘chirish</th>
+    </tr>
+    {% for item in cart_items %}
+    <tr>
+        <td>{{ item.product.desc }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.item_total }}</td>
+        <td>
+            <form method="post" action="{% url 'cart_remove' item.product.id %}" class="cart-remove-form">
+                {% csrf_token %}
+                <button type="submit">O‘chirish</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<p><b>Umumiy summa: {{ total }}</b></p>

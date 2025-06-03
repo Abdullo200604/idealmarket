@@ -1,0 +1,133 @@
+<!-- market/templates/market/kassa.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kassa oynasi</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>Kassa oynasi</h2>
+
+<!-- Qidiruv formasi -->
+<form method="get" action="">
+    <input type="text" name="q" placeholder="Qidiruv (nom yoki barcode)" value="{{ query }}">
+    <button type="submit">Qidirish</button>
+</form>
+<br>
+
+<h3>Mahsulotlar</h3>
+<table border="1">
+    <tr>
+        <th>Mahsulot</th>
+        <th>Barcode</th>
+        <th>Ombor</th>
+        <th>Narxi</th>
+        <th>Savatga qo‘shish</th>
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td>{{ product.desc }}</td>
+        <td>{{ product.barcode }}</td>
+        <td>{{ product.ombor.name }}</td>
+        <td>{{ product.s_price }}</td>
+        <td>
+            <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                <button type="submit">Qo‘shish</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- SAVAT (AJAX orqali yangilanadigan joy) -->
+<div id="cart-area">
+    {% include "market/_cart_partial.html" %}
+</div>
+<div id="cart-message"></div> <!-- Xabarlar shu yerda chiqadi -->
+
+<script>
+$(function(){
+    // Mahsulotni savatga qo‘shish
+    $(document).on('submit', '.cart-add-form', function(e){
+        e.preventDefault();
+        var $form = $(this);
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
+            success: function(data){
+                $('#cart-area').html(data.cart_html);
+                if(data.message){
+                    $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
+                } else {
+                    $('#cart-message').html('');
+                }
+            }
+        });
+    });
+
+    // Savatdan o‘chirish
+    $(document).on('submit', '.cart-remove-form', function(e){
+        e.preventDefault();
+        var $form = $(this);
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
+            success: function(data){
+                $('#cart-area').html(data.cart_html);
+                if(data.message){
+                    $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
+                } else {
+                    $('#cart-message').html('');
+                }
+            }
+        });
+    });
+
+    // Savatni tozalash
+    $(document).on('submit', '#cart-clear-form', function(e){
+        e.preventDefault();
+        var $form = $(this);
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
+            success: function(data){
+                $('#cart-area').html(data.cart_html);
+                if(data.message){
+                    $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
+                } else {
+                    $('#cart-message').html('');
+                }
+            }
+        });
+    });
+
+    // Chekni yakunlash
+    $(document).on('submit', '#cart-checkout-form', function(e){
+        e.preventDefault();
+        var $form = $(this);
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
+            success: function(data){
+                $('#cart-area').html(data.cart_html);
+                $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
+            }
+        });
+    });
+});
+</script>
+<a href="{% url 'sales_list' %}">Cheklar tarixi</a>
+<button onclick="generatePDF()">PDFga chiqarish</button>
+
+</body>
+</html>
