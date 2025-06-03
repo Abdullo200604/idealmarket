@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Catagory(models.Model):
     name = models.CharField(max_length=100)
@@ -25,9 +26,10 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.barcode} - {self.desc or ''}"
 
+
 class Sale(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    # total_sum maydonini **olib tashlang**!
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     @property
     def total_sum(self):

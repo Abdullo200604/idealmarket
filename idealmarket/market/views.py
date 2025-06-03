@@ -3,15 +3,17 @@ from django.template.loader import render_to_string
 from django.http import JsonResponse
 from .models import Product, Sale, SaleItem
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 
+# ROLLARNI ANIQLASH
+def is_kassir_or_admin(user):
+    return user.is_superuser or user.groups.filter(name='Kassir').exists()
+
+@login_required
 def kassa(request):
     query = request.GET.get('q', '')
     if query:
-        products = Product.objects.filter(
-            desc__icontains=query
-        ) | Product.objects.filter(
-            barcode__icontains=query
-        )
+        products = Product.objects.filter(desc__icontains=query) | Product.objects.filter(barcode__icontains=query)
     else:
         products = Product.objects.all()
     cart = request.session.get('cart', {})
@@ -33,6 +35,7 @@ def kassa(request):
         'query': query,
     })
 
+@login_required
 def cart_add(request, product_id):
     cart = request.session.get('cart', {})
     quantity = int(request.POST.get('quantity', 1))
@@ -57,6 +60,7 @@ def cart_add(request, product_id):
         return JsonResponse({'cart_html': html})
     return redirect('kassa')
 
+@login_required
 def cart_remove(request, product_id):
     cart = request.session.get('cart', {})
     if str(product_id) in cart:
@@ -81,6 +85,7 @@ def cart_remove(request, product_id):
         return JsonResponse({'cart_html': html})
     return redirect('kassa')
 
+@login_required
 def cart_clear(request):
     request.session['cart'] = {}
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -93,6 +98,7 @@ def cart_clear(request):
         return JsonResponse({'cart_html': html})
     return redirect('kassa')
 
+@login_required
 def cart_checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
@@ -108,7 +114,7 @@ def cart_checkout(request):
         messages.error(request, msg)
         return redirect('kassa')
 
-    # Qoldiqni tekshirish
+    # Ombordagi qolgan miqdorni tekshirish
     error_msg = None
     for product_id, quantity in cart.items():
         product = Product.objects.get(pk=product_id)
@@ -137,11 +143,12 @@ def cart_checkout(request):
         messages.error(request, error_msg)
         return redirect('kassa')
 
-    sale = Sale.objects.create()
+    # **FAQAT BIR MARTA YARATILADI**
+    sale = Sale.objects.create(created_by=request.user)
     for product_id, quantity in cart.items():
         product = Product.objects.get(pk=product_id)
         SaleItem.objects.create(
-            sale=sale,
+            sale=sale,                # <-- har bir item uchun faqat shu bir xil sale!
             product=product,
             quantity=quantity,
             price=product.s_price
@@ -161,15 +168,16 @@ def cart_checkout(request):
     messages.success(request, msg)
     return redirect('kassa')
 
-
+# FAQAT KASSIR VA ADMIN KO‘RISHI MUMKIN!
+@user_passes_test(is_kassir_or_admin)
 def sales_list(request):
     sales = Sale.objects.order_by('-created_at')
     return render(request, 'market/sales_list.html', {'sales': sales})
 
+@user_passes_test(is_kassir_or_admin)
 def sale_detail(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
     items = sale.items.all()
-    # Umumiy summa hisoblash
     total_sum = sum([item.quantity * item.price for item in items])
     return render(request, 'market/sale_detail.html', {
         'sale': sale,

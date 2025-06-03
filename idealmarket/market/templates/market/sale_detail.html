@@ -7,7 +7,15 @@
 </head>
 <body>
 <h2>Chek №{{ sale.id }} tafsiloti</h2>
-<p>Sana: {{ sale.created_at|date:"Y-m-d H:i" }}</p>
+<p>
+    Sana: {{ sale.created_at|date:"Y-m-d H:i" }}<br>
+    Chek qilgan foydalanuvchi:
+    {% if sale.created_by %}
+        <b>{{ sale.created_by.username }}</b>
+    {% else %}
+        <span style="color:gray;">No name</span>
+    {% endif %}
+</p>
 <button onclick="generatePDF()">PDFga chiqarish</button>
 <button onclick="window.print()">Printerga chiqarish</button>
 <table border="1">
@@ -21,8 +29,8 @@
     <tr>
         <td>{{ item.product.desc }}</td>
         <td>{{ item.quantity }}</td>
-        <td>{{ item.price }}</td>
-        <td>{{ item.quantity|floatformat:0 }} x {{ item.price|floatformat:2 }} = {{ item.quantity|floatformat:0|add:""|floatformat:0|floatformat:2|floatformat:0|default:"" }}</td>
+        <td>{{ item.price|floatformat:2 }}</td>
+        <td>{{ item.quantity }} x {{ item.price|floatformat:2 }} = {{ item.quantity|floatformat:0|add:""|floatformat:0|floatformat:2|floatformat:0|default:"" }}</td>
     </tr>
     {% endfor %}
 </table>
@@ -37,10 +45,11 @@ function generatePDF() {
         ,[
             '{{ item.product.desc|escapejs }}',
             '{{ item.quantity }}',
-            '{{ item.price }}',
-            '{{ item.quantity }} x {{ item.price }} = {{ item.quantity|floatformat:0|add:""|floatformat:0|floatformat:2|floatformat:0|default:"" }}'
+            '{{ item.price|floatformat:2 }}',
+            '{{ item.quantity }} x {{ item.price|floatformat:2 }} = {{ item.quantity|floatformat:0|add:""|floatformat:0|floatformat:2|floatformat:0|default:"" }}'
         ]
         {% endfor %}
+        ,['', '', 'Umumiy summa:', '{{ total_sum|floatformat:2 }}']
     ];
     var docDefinition = {
         content: [
@@ -51,8 +60,7 @@ function generatePDF() {
                     headerRows: 1,
                     body: body
                 }
-            },
-            { text: 'Umumiy summa: {{ total_sum }}', bold: true, margin: [0,10,0,0] }
+            }
         ]
     };
     pdfMake.createPdf(docDefinition).download('Chek_{{ sale.id }}.pdf');

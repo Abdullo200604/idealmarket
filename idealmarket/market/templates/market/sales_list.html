@@ -15,6 +15,7 @@
     <tr>
         <th>ID</th>
         <th>Sana</th>
+        <th>Chek qilgan</th>
         <th>Umumiy summa</th>
         <th>Batafsil</th>
     </tr>
@@ -23,9 +24,23 @@
         <td>{{ sale.id }}</td>
         <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
         <td>
-            {{
-                sale.items.all|length > 0|yesno:total_sum|default:"Hisoblash"
-            }}
+            {% if sale.created_by %}
+                {{ sale.created_by.username }}
+            {% else %}
+                <span style="color:gray;">No name</span>
+            {% endif %}
+        </td>
+        <td>
+            {% with total=0 %}
+            {% for item in sale.items.all %}
+                {% widthratio item.price|floatformat:2 item.price 1 as one_price %}
+                {% widthratio item.quantity 1 1 as one_qty %}
+                {% widthratio one_price one_qty 1 as total_item %}
+                {% with total=total|add:total_item %}
+                {% endwith %}
+            {% endfor %}
+            {{ total }}
+            {% endwith %}
         </td>
         <td>
             <a href="{% url 'sale_detail' sale.id %}">Ko‘rish</a>
@@ -33,7 +48,7 @@
     </tr>
     {% empty %}
     <tr>
-        <td colspan="4">Cheklar yo‘q.</td>
+        <td colspan="5">Cheklar yo‘q.</td>
     </tr>
     {% endfor %}
 </table>
