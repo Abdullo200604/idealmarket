@@ -4,8 +4,12 @@
 <head>
     <title>Kassa oynasi</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- PDFmake uchun -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 </head>
 <body>
+
 <h2>Kassa oynasi</h2>
 
 <!-- Qidiruv formasi -->
@@ -31,26 +35,34 @@
         <td>{{ product.ombor.name }}</td>
         <td>{{ product.s_price }}</td>
         <td>
+            {% if product.is_active %}
             <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
                 {% csrf_token %}
                 <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
                 <button type="submit">Qo‘shish</button>
             </form>
+            {% else %}
+                <span style="color: red; font-weight: bold;">Muddati tugagan</span>
+            {% endif %}
         </td>
     </tr>
     {% endfor %}
 </table>
 
-<!-- SAVAT (AJAX orqali yangilanadigan joy) -->
+<!-- Savat bo‘limi -->
 <div id="cart-area">
     {% include "market/_cart_partial.html" %}
 </div>
-<div id="cart-message"></div> <!-- Xabarlar shu yerda chiqadi -->
+<div id="cart-message"></div>
+
+<!-- PDF tugmasi -->
+<button onclick="generatePDF()">Chekni PDFga saqlash</button>
+<a href="{% url 'sales_list' %}">Cheklar tarixi</a>
 
 <script>
 $(function(){
-    // Mahsulotni savatga qo‘shish
-    $(document).on('submit', '.cart-add-form', function(e){
+
+    $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form', function(e){
         e.preventDefault();
         var $form = $(this);
         $.ajax({
@@ -69,65 +81,40 @@ $(function(){
         });
     });
 
-    // Savatdan o‘chirish
-    $(document).on('submit', '.cart-remove-form', function(e){
-        e.preventDefault();
-        var $form = $(this);
-        $.ajax({
-            type: 'POST',
-            url: $form.attr('action'),
-            data: $form.serialize(),
-            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
-            success: function(data){
-                $('#cart-area').html(data.cart_html);
-                if(data.message){
-                    $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
-                } else {
-                    $('#cart-message').html('');
-                }
-            }
-        });
-    });
-
-    // Savatni tozalash
-    $(document).on('submit', '#cart-clear-form', function(e){
-        e.preventDefault();
-        var $form = $(this);
-        $.ajax({
-            type: 'POST',
-            url: $form.attr('action'),
-            data: $form.serialize(),
-            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
-            success: function(data){
-                $('#cart-area').html(data.cart_html);
-                if(data.message){
-                    $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
-                } else {
-                    $('#cart-message').html('');
-                }
-            }
-        });
-    });
-
-    // Chekni yakunlash
-    $(document).on('submit', '#cart-checkout-form', function(e){
-        e.preventDefault();
-        var $form = $(this);
-        $.ajax({
-            type: 'POST',
-            url: $form.attr('action'),
-            data: $form.serialize(),
-            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
-            success: function(data){
-                $('#cart-area').html(data.cart_html);
-                $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
-            }
-        });
-    });
 });
+
+function generatePDF() {
+    var items = [
+        ['Mahsulot', 'Miqdori', 'Jami'],
+        {% for item in cart_items %}
+        [
+            '{{ item.product.desc|escapejs }}',
+            '{{ item.quantity }}',
+            '{{ item.item_total }}'
+        ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    var docDefinition = {
+        content: [
+            {text: 'Chek', style: 'header', alignment: 'center'},
+            {
+                table: {
+                    headerRows: 1,
+                    body: items
+                }
+            },
+            {text: 'Umumiy summa: {{ total }}', style: 'total', margin: [0, 10, 0, 0]}
+        ],
+        styles: {
+            header: {fontSize: 16, bold: true, margin: [0, 0, 0, 10]},
+            total: {fontSize: 14, bold: true}
+        }
+    };
+
+    pdfMake.createPdf(docDefinition).download('check.pdf');
+}
 </script>
-<a href="{% url 'sales_list' %}">Cheklar tarixi</a>
-<button onclick="generatePDF()">PDFga chiqarish</button>
 
 </body>
 </html>
