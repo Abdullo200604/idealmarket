@@ -1,85 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
+    <meta charset="UTF-8">
     <title>Statistika va hisobotlar</title>
     <style>
-        table { border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 6px 12px; }
-        th { background: #eaeaea; }
+        body { font-family: Arial, sans-serif; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+        th, td { border: 1px solid #888; padding: 5px 10px; }
+        th { background: #eee; }
+        h3 { margin-top: 40px; }
     </style>
 </head>
 <body>
-    <h2>Kategoriya bo‘yicha sotuvlar</h2>
-    <table>
-        <tr><th>Kategoriya</th><th>Soni</th><th>Jami summa</th></tr>
-        {% for row in category_stats %}
-            <tr>
-                <td>{{ row.product__catagory__name }}</td>
-                <td>{{ row.total_sales }}</td>
-                <td>{{ row.total_sum }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h1>Statistika va hisobotlar</h1>
 
-    <h2>Eng ko‘p sotilgan mahsulotlar (Top 10)</h2>
-    <table>
-        <tr><th>Mahsulot</th><th>Soni</th><th>Jami summa</th></tr>
-        {% for row in product_stats %}
-            <tr>
-                <td>{{ row.product__desc }}</td>
-                <td>{{ row.total_sales }}</td>
-                <td>{{ row.total_sum }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h3>Kategoriya bo‘yicha sotuvlar</h3>
+<table>
+    <tr><th>Kategoriya</th><th>Sotilganlar soni</th><th>Umumiy summa</th></tr>
+    {% for row in category_stats %}
+    <tr>
+        <td>{{ row.product__catagory__name }}</td>
+        <td>{{ row.total_sales }}</td>
+        <td>{{ row.total_sum }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-    <h2>Kassirlar bo‘yicha sotuvlar</h2>
-    <table>
-        <tr><th>Kassir</th><th>Cheklar soni</th><th>Jami summa</th></tr>
-        {% for row in kassir_stats %}
-            <tr>
-                <td>{{ row.created_by__username|default:"-" }}</td>
-                <td>{{ row.total_cheks }}</td>
-                <td>{{ row.total_sum }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h3>Eng ko‘p sotilgan mahsulotlar</h3>
+<table>
+    <tr><th>Mahsulot</th><th>Sotilganlar soni</th><th>Umumiy summa</th></tr>
+    {% for row in product_stats %}
+    <tr>
+        <td>{{ row.product__desc }}</td>
+        <td>{{ row.total_sales }}</td>
+        <td>{{ row.total_sum }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-    <h2>Kunlar bo‘yicha sotuvlar</h2>
-    <table>
-        <tr><th>Sana</th><th>Cheklar soni</th><th>Jami summa</th></tr>
-        {% for row in date_stats %}
-            <tr>
-                <td>{{ row.created_at__date }}</td>
-                <td>{{ row.total_cheks }}</td>
-                <td>{{ row.total_sum }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h3>Top kassir(lar)</h3>
+<table>
+    <tr><th>Kassir</th><th>Cheklar soni</th><th>Umumiy summa</th></tr>
+    {% for row in kassir_stats %}
+    <tr>
+        <td>{{ row.created_by__username }}</td>
+        <td>{{ row.total_cheks }}</td>
+        <td>{{ row.total_sum }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-    <h2>Eng faol soatlar</h2>
-    <table>
-        <tr><th>Soat</th><th>Cheklar soni</th></tr>
-        {% for row in hour_stats %}
-            <tr>
-                <td>{{ row.hour }}</td>
-                <td>{{ row.total_cheks }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h3>Kunlik sotuvlar</h3>
+<table>
+    <tr><th>Sana</th><th>Cheklar soni</th><th>Umumiy summa</th></tr>
+    {% for row in date_stats %}
+    <tr>
+        <td>{{ row.created_at__date }}</td>
+        <td>{{ row.total_cheks }}</td>
+        <td>{{ row.total_sum }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-    <h2>Muddatdan o‘tgan mahsulotlar</h2>
-    <table>
-        <tr><th>Mahsulot</th><th>Barcode</th><th>Muddati</th></tr>
-        {% for product in expired_products %}
-            <tr>
-                <td>{{ product.desc }}</td>
-                <td>{{ product.barcode }}</td>
-                <td>{{ product.end_date }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h3>Eng faol soatlar</h3>
+<table>
+    <tr><th>Soat</th><th>Cheklar soni</th></tr>
+    {% for row in hour_stats %}
+    <tr>
+        <td>{{ row.hour }}:00</td>
+        <td>{{ row.total_cheks }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-    <a href="{% url 'kassa' %}">Kassaga qaytish</a>
+<h3>Muddatdan o‘tgan mahsulotlar</h3>
+<table>
+    <tr><th>Mahsulot</th><th>Barcode</th><th>Ombor</th><th>Muddati tugagan sana</th></tr>
+    {% for p in expired_products %}
+    <tr>
+        <td>{{ p.desc }}</td>
+        <td>{{ p.barcode }}</td>
+        <td>{{ p.ombor.name }}</td>
+        <td>{{ p.end_date }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">Muddatdan o‘tgan mahsulotlar yo‘q.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="{% url 'kassa' %}">Kassaga qaytish</a>
 </body>
 </html>
