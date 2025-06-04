@@ -346,6 +346,9 @@ def statistics(request):
     })
 
 
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+
 @user_passes_test(is_kassir_or_admin)
 def export_statistics_pdf(request):
     response = HttpResponse(content_type='application/pdf')
@@ -386,6 +389,7 @@ def export_statistics_pdf(request):
 def export_statistics_excel(request):
     from .models import SaleItem
     from django.db.models import Sum
+    import pandas as pd
 
     stats = (
         SaleItem.objects.values('product__desc')
