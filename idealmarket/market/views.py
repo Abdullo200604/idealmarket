@@ -10,11 +10,17 @@ from django.db.models import Q
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from .models import Sale, SaleItem
+
 from django.db.models import Count, Sum
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import timedelta
 from django.contrib.auth.decorators import user_passes_test
+
+import pandas as pd
 
 
 # ROLLARNI ANIQLASH
@@ -257,8 +263,42 @@ def sale_detail(request, pk):
     })
 
 
-
 from django.db.models.functions import ExtractHour
+
+
+@login_required
+@user_passes_test(is_kassir_or_admin)
+def export_sales_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="cheklar.pdf"'
+    p = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(200, height - 40, "Cheklar Tarixi (Sales History)")
+    y = height - 70
+    p.setFont("Helvetica", 10)
+    p.drawString(30, y, "ID")
+    p.drawString(70, y, "Sana")
+    p.drawString(160, y, "Foydalanuvchi")
+    p.drawString(250, y, "Umumiy summa")
+
+    y -= 15
+
+    sales = Sale.objects.order_by('-created_at')
+    for sale in sales:
+        p.drawString(30, y, str(sale.id))
+        p.drawString(70, y, sale.created_at.strftime('%Y-%m-%d %H:%M'))
+        p.drawString(160, y, sale.created_by.username if sale.created_by else "-")
+        p.drawString(250, y, str(sale.total_sum))
+        y -= 14
+        if y < 40:
+            p.showPage()
+            y = height - 40
+
+    p.save()
+    return response
+
 
 @user_passes_test(is_kassir_or_admin)
 def statistics(request):
@@ -304,3 +344,56 @@ def statistics(request):
         'hour_stats': hour_stats,
         'expired_products': expired_products,
     })
+
+
+@user_passes_test(is_kassir_or_admin)
+def export_statistics_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="statistika.pdf"'
+    p = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(200, height-40, "Statistika va Hisobotlar")
+    y = height - 70
+
+    # Eng ko‘p sotilgan mahsulotlar
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(30, y, "Eng ko‘p sotilgan mahsulotlar")
+    y -= 20
+    p.setFont("Helvetica", 10)
+
+    from .models import SaleItem
+    from django.db.models import Sum
+
+    stats = (
+        SaleItem.objects.values('product__desc')
+        .annotate(total=Sum('quantity'))
+        .order_by('-total')[:10]
+    )
+    p.drawString(30, y, "Mahsulot"); p.drawString(250, y, "Soni")
+    y -= 16
+    for row in stats:
+        p.drawString(30, y, row['product__desc'][:30])
+        p.drawString(250, y, str(row['total']))
+        y -= 14
+        if y < 40: p.showPage(); y = height - 40
+
+    p.save()
+    return response
+
+@user_passes_test(is_kassir_or_admin)
+def export_statistics_excel(request):
+    from .models import SaleItem
+    from django.db.models import Sum
+
+    stats = (
+        SaleItem.objects.values('product__desc')
+        .annotate(total=Sum('quantity'))
+        .order_by('-total')[:10]
+    )
+    df = pd.DataFrame(list(stats))
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="statistika.xlsx"'
+    df.to_excel(response, index=False)
+    return response
