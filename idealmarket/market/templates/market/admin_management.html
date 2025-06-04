@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 0; }
+        .container { max-width: 700px; margin: 60px auto 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 24px #e2e2e2; padding: 36px; position: relative; }
+        .logout-button {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            border: none;
+        }
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+        h2 { color: #333; margin-bottom: 16px; }
+        ul { list-style: none; padding-left: 0; }
+        li { margin: 16px 0; }
+        a.menu-link {
+            color: #0056b3;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        a.menu-link:hover { color: #007bff; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'logout' %}" class="logout-button">Chiqish (Logout)</a>
+        <h2>Admin Panel</h2>
+        <p>Bu yerda adminlar uchun boshqaruv bo‘limi bo‘ladi.</p>
+        <ul>
+          <li><a href="{% url 'statistics' %}">Statistika va hisobotlar</a></li>
+          <li><a href="{% url 'admin_products' %}">Mahsulotlarni boshqarish</a></li>
+          <li><a href="{% url 'admin_categories' %}">Kategoriyalar</a></li>
+          <li><a href="{% url 'admin_users' %}">Foydalanuvchilar</a></li>
+          <li><a href="{% url 'admin_groups' %}">Guruhlar</a></li>
+          <li><a href="{% url 'admin_ombors' %}">Omborlar</a></li>
+          <li><a href="{% url 'admin_sales' %}">Sotuvlar</a></li>
+        </ul>
+    </div>
+</body>
+</html>

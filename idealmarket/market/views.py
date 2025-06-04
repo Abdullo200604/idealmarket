@@ -1,26 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
-from django.http import JsonResponse
-from .models import Product, Sale, SaleItem
-from django.contrib import messages
-
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from django.views.decorators.http import require_POST
-from django.template.loader import render_to_string
-
-from django.http import HttpResponse
+from .models import Product, Sale, SaleItem
+from django.contrib import messages
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from .models import Sale, SaleItem
 
-from django.db.models import Count, Sum
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.contrib.auth.decorators import user_passes_test
-
+from django import forms
+from .forms import ProductForm
 import pandas as pd
+from django.db.models.functions import ExtractHour
+
+#Models
+from .models import Ombor
+from .models import Catagory
+
+
 
 
 # ROLLARNI ANIQLASH
@@ -29,20 +28,41 @@ def is_kassir_or_admin(user):
 
 
 @login_required
+def dashboard_redirect(request):
+    user = request.user
+    if user.is_superuser:
+        # Eng to'g'ri variant: url nomi orqali redirect
+        return redirect('admin_management')
+    elif user.groups.filter(name='Kassir').exists():
+        return redirect('kassa')
+    else:
+        return render(request, 'market/access_denied.html', {
+            'message': "Sizga kirishga ruxsat yo‘q!"
+        })
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_management(request):
+    # Kerakli admin ma'lumotlar va funksiya
+    return render(request, 'market/admin_management.html')
+
+
+@login_required
 def kassa(request):
     query = request.GET.get('q', '')
     now = timezone.now()
-    products_qs = Product.objects.filter(start_date__lte=now).filter(Q(end_date__isnull=True) | Q(end_date__gte=now))
+    products = Product.objects.filter(
+        start_date__lte=now
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=now)
+    )
     if query:
-        products_qs = products_qs.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
-    products = products_qs
+        products = products.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
 
-    # AJAX so‘rov bo‘lsa
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         products_html = render_to_string('market/_products_table.html', {'products': products})
         return JsonResponse({'products_html': products_html})
 
-    # Oddiy sahifa
     cart = request.session.get('cart', {})
     cart_items = []
     total = 0
@@ -62,24 +82,21 @@ def kassa(request):
         'query': query,
     })
 
-
-@login_required
 @login_required
 def cart_add(request, product_id):
     if request.method != "POST":
         return redirect('kassa')
-
     product = Product.objects.get(pk=product_id)
     if not product.is_active:
         msg = "Bu mahsulot muddati tugagan va sotib bo‘lmaydi!"
         return JsonResponse(
             {'message': msg, 'cart_html': render_to_string('market/_cart_partial.html', {}, request=request)})
-
     cart = request.session.get('cart', {})
     quantity = int(request.POST.get('quantity', 1))
     cart[str(product_id)] = cart.get(str(product_id), 0) + quantity
     request.session['cart'] = cart
 
+    # Yangi savat holatini qaytarish
     cart_items = []
     total = 0
     for pid, qty in cart.items():
@@ -91,37 +108,29 @@ def cart_add(request, product_id):
             'quantity': qty,
             'item_total': item_total
         })
-
     html = render_to_string('market/_cart_partial.html', {
         'cart_items': cart_items,
         'total': total,
     }, request=request)
-
     return JsonResponse({'cart_html': html, 'message': "Mahsulot qo'shildi!"})
-
 
 @login_required
 @require_POST
 def cart_update(request, product_id):
     action = request.POST.get('action')
     cart = request.session.get('cart', {})
-
     if action not in ['add', 'remove']:
         return JsonResponse({'message': 'Noto\'g\'ri amal'}, status=400)
-
     product = get_object_or_404(Product, pk=product_id)
-
     if action == 'add':
         if not product.is_active:
             return JsonResponse({'message': "Bu mahsulot muddati tugagan!"}, status=400)
         cart[str(product_id)] = cart.get(str(product_id), 0) + 1
-
     elif action == 'remove':
         if str(product_id) in cart:
             cart[str(product_id)] -= 1
             if cart[str(product_id)] <= 0:
                 del cart[str(product_id)]
-
     request.session['cart'] = cart
 
     cart_items = []
@@ -135,14 +144,11 @@ def cart_update(request, product_id):
             'quantity': qty,
             'item_total': item_total
         })
-
     html = render_to_string('market/_cart_partial.html', {
         'cart_items': cart_items,
         'total': total,
     }, request=request)
-
     return JsonResponse({'cart_html': html, 'message': 'Savat yangilandi!'})
-
 
 @login_required
 def cart_remove(request, product_id):
@@ -169,7 +175,6 @@ def cart_remove(request, product_id):
         return JsonResponse({'cart_html': html})
     return redirect('kassa')
 
-
 @login_required
 def cart_clear(request):
     if request.method == "POST":
@@ -183,7 +188,6 @@ def cart_clear(request):
         return JsonResponse({'cart_html': html, 'message': "Savat tozalandi!"})
     return JsonResponse({'message': "Noto'g'ri so'rov."}, status=400)
 
-
 @login_required
 def cart_checkout(request):
     if request.method == "POST":
@@ -194,7 +198,6 @@ def cart_checkout(request):
                 'total': 0,
             }, request=request)
             return JsonResponse({'cart_html': html, 'message': "Savat bo'sh!"}, status=400)
-
         error_msg = None
         for product_id, quantity in cart.items():
             product = Product.objects.get(pk=product_id)
@@ -204,7 +207,6 @@ def cart_checkout(request):
             if product.stock < quantity:
                 error_msg = f"{product.desc} yetarli emas, qolgan: {product.stock}"
                 break
-
         if error_msg:
             cart_items = []
             total = 0
@@ -221,7 +223,6 @@ def cart_checkout(request):
                 'total': total,
             }, request=request)
             return JsonResponse({'cart_html': html, 'message': error_msg}, status=400)
-
         sale = Sale.objects.create(created_by=request.user)
         for product_id, quantity in cart.items():
             product = Product.objects.get(pk=product_id)
@@ -233,23 +234,18 @@ def cart_checkout(request):
             )
             product.stock -= quantity
             product.save()
-
         request.session['cart'] = {}
         html = render_to_string('market/_cart_partial.html', {
             'cart_items': [],
             'total': 0,
         }, request=request)
         return JsonResponse({'cart_html': html, 'message': f"Chek #{sale.id} saqlandi!"})
-
     return JsonResponse({'message': "Noto'g'ri so'rov."}, status=400)
 
-
-# FAQAT KASSIR VA ADMIN KO‘RISHI MUMKIN!
 @user_passes_test(is_kassir_or_admin)
 def sales_list(request):
     sales = Sale.objects.order_by('-created_at')
     return render(request, 'market/sales_list.html', {'sales': sales})
-
 
 @user_passes_test(is_kassir_or_admin)
 def sale_detail(request, pk):
@@ -261,44 +257,6 @@ def sale_detail(request, pk):
         'items': items,
         'total_sum': total_sum
     })
-
-
-from django.db.models.functions import ExtractHour
-
-
-@login_required
-@user_passes_test(is_kassir_or_admin)
-def export_sales_pdf(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="cheklar.pdf"'
-    p = canvas.Canvas(response, pagesize=A4)
-    width, height = A4
-
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(200, height - 40, "Cheklar Tarixi (Sales History)")
-    y = height - 70
-    p.setFont("Helvetica", 10)
-    p.drawString(30, y, "ID")
-    p.drawString(70, y, "Sana")
-    p.drawString(160, y, "Foydalanuvchi")
-    p.drawString(250, y, "Umumiy summa")
-
-    y -= 15
-
-    sales = Sale.objects.order_by('-created_at')
-    for sale in sales:
-        p.drawString(30, y, str(sale.id))
-        p.drawString(70, y, sale.created_at.strftime('%Y-%m-%d %H:%M'))
-        p.drawString(160, y, sale.created_by.username if sale.created_by else "-")
-        p.drawString(250, y, str(sale.total_sum))
-        y -= 14
-        if y < 40:
-            p.showPage()
-            y = height - 40
-
-    p.save()
-    return response
-
 
 @user_passes_test(is_kassir_or_admin)
 def statistics(request):
@@ -345,9 +303,36 @@ def statistics(request):
         'expired_products': expired_products,
     })
 
+@user_passes_test(is_kassir_or_admin)
+def export_sales_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="cheklar.pdf"'
+    p = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(200, height - 40, "Cheklar Tarixi (Sales History)")
+    y = height - 70
+    p.setFont("Helvetica", 10)
+    p.drawString(30, y, "ID")
+    p.drawString(70, y, "Sana")
+    p.drawString(160, y, "Foydalanuvchi")
+    p.drawString(250, y, "Umumiy summa")
+    y -= 15
+
+    sales = Sale.objects.order_by('-created_at')
+    for sale in sales:
+        p.drawString(30, y, str(sale.id))
+        p.drawString(70, y, sale.created_at.strftime('%Y-%m-%d %H:%M'))
+        p.drawString(160, y, sale.created_by.username if sale.created_by else "-")
+        p.drawString(250, y, str(sale.total_sum))
+        y -= 14
+        if y < 40:
+            p.showPage()
+            y = height - 40
+
+    p.save()
+    return response
 
 @user_passes_test(is_kassir_or_admin)
 def export_statistics_pdf(request):
@@ -365,9 +350,6 @@ def export_statistics_pdf(request):
     p.drawString(30, y, "Eng ko‘p sotilgan mahsulotlar")
     y -= 20
     p.setFont("Helvetica", 10)
-
-    from .models import SaleItem
-    from django.db.models import Sum
 
     stats = (
         SaleItem.objects.values('product__desc')
@@ -387,10 +369,6 @@ def export_statistics_pdf(request):
 
 @user_passes_test(is_kassir_or_admin)
 def export_statistics_excel(request):
-    from .models import SaleItem
-    from django.db.models import Sum
-    import pandas as pd
-
     stats = (
         SaleItem.objects.values('product__desc')
         .annotate(total=Sum('quantity'))
@@ -401,3 +379,185 @@ def export_statistics_excel(request):
     response['Content-Disposition'] = 'attachment; filename="statistika.xlsx"'
     df.to_excel(response, index=False)
     return response
+
+
+#admin
+@user_passes_test(lambda u: u.is_superuser)
+def admin_management(request):
+    return render(request, 'market/admin_management.html')
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_products(request):
+    products = Product.objects.all().order_by('-id')
+    categories = Catagory.objects.all()
+    query = request.GET.get('q', '')
+    cat_id = request.GET.get('cat')
+    if query:
+        products = products.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
+    if cat_id:
+        products = products.filter(catagory_id=cat_id)
+    context = {
+        'products': products,
+        'categories': categories
+    }
+    return render(request, 'market/admin_products.html', context)
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_categories(request):
+    return render(request, 'market/admin_categories.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_users(request):
+    return render(request, 'market/admin_users.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_groups(request):
+    return render(request, 'market/admin_groups.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_ombors(request):
+    return render(request, 'market/admin_ombors.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_sales(request):
+    return render(request, 'market/admin_sales.html')
+
+#admin praduct
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_add(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_products')
+    else:
+        form = ProductForm()
+    return render(request, 'market/admin_product_form.html', {'form': form})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_edit(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_products')
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'market/admin_product_form.html', {'form': form, 'product': product})
+
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        product.delete()
+        return redirect('admin_products')
+    return render(request, 'market/admin_product_confirm_delete.html', {'product': product})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+def admin_product_bulk_delete(request):
+    ids = request.POST.getlist('selected_products')
+    if ids:
+        Product.objects.filter(id__in=ids).delete()
+        messages.success(request, f"{len(ids)} ta mahsulot o‘chirildi!")
+    else:
+        messages.warning(request, "Hech qanaqa mahsulot tanlanmadi.")
+    return redirect('admin_products')
+
+    # kategoriyalar
+class CatagoryForm(forms.ModelForm):
+    class Meta:
+        model = Catagory
+        fields = ['name', 'desc']
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_categories(request):
+    categories = Catagory.objects.all()
+    return render(request, 'market/admin_categories.html', {'categories': categories})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_category_add(request):
+    if request.method == 'POST':
+        form = CatagoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_categories')
+    else:
+        form = CatagoryForm()
+    return render(request, 'market/admin_category_form.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_category_edit(request, pk):
+    category = get_object_or_404(Catagory, pk=pk)
+    if request.method == 'POST':
+        form = CatagoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_categories')
+    else:
+        form = CatagoryForm(instance=category)
+    return render(request, 'market/admin_category_form.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_category_delete(request, pk):
+    category = get_object_or_404(Catagory, pk=pk)
+    if request.method == 'POST':
+        category.delete()
+        return redirect('admin_categories')
+    return render(request, 'market/admin_category_confirm_delete.html', {'category': category})
+
+#Ombor
+class OmborForm(forms.ModelForm):
+    class Meta:
+        model = Ombor
+        fields = ['name']
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_ombors(request):
+    ombors = Ombor.objects.all()
+    return render(request, 'market/admin_ombors.html', {'ombors': ombors})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_ombor_add(request):
+    if request.method == 'POST':
+        form = OmborForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_ombors')
+    else:
+        form = OmborForm()
+    return render(request, 'market/admin_ombor_form.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_ombor_edit(request, pk):
+    ombor = get_object_or_404(Ombor, pk=pk)
+    if request.method == 'POST':
+        form = OmborForm(request.POST, instance=ombor)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_ombors')
+    else:
+        form = OmborForm(instance=ombor)
+    return render(request, 'market/admin_ombor_form.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_ombor_delete(request, pk):
+    ombor = get_object_or_404(Ombor, pk=pk)
+    if request.method == 'POST':
+        ombor.delete()
+        return redirect('admin_ombors')
+    return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})

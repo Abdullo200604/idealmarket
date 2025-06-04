@@ -1,0 +1,15 @@
+<h2>Mahsulotni o‘chirish</h2>
+<p>Rostdan ham "{{ product.desc }}" mahsulotini o‘chirmoqchimisiz?</p>
+<form method="post">
+    {% csrf_token %}
+<!-- O‘chirish tugmasi (qizil rangli) -->
+<button type="submit" style="background-color: #d9534f; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
+    O‘chirish
+</button>
+
+<!-- Bekor qilish tugmasi (kulrang rangli a-tag) -->
+<a href="{% url 'admin_products' %}" style="display: inline-block; background-color: #6c757d; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin-left: 10px;">
+    Bekor qilish
+</a>
+
+</form>

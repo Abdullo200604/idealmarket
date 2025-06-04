@@ -1,0 +1,99 @@
+[
+    {
+        "id": 1,
+        "category": 1,
+        "ombor": "Asosiy",
+        "barcode": "8600000000012",
+        "desc": "Coca Cola 1.5L",
+        "r_price": 7000,
+        "s_price": 9000,
+        "stock": 100,
+        "start_date": "2025-06-04",
+        "end_date": "2025-12-01"
+    },
+
+    {
+        "id": 2,
+        "category": 2,
+        "ombor": "Go'sht Ombori",
+        "barcode": "8600000000029",
+        "desc": "Mol go'shti 1kg",
+        "r_price": 55000,
+        "s_price": 65000,
+        "stock": 30,
+        "start_date": "2025-06-04",
+        "end_date": "2025-09-02"
+    },
+    {
+        "id": 3,
+        "category": 3,
+        "ombor": "Asosiy",
+        "barcode": "8600000000036",
+        "desc": "Olma 1kg",
+        "r_price": 8000,
+        "s_price": 12000,
+        "stock": 50,
+        "start_date": "2025-06-04",
+        "end_date": "2025-07-04"
+    },
+    {
+        "id": 4,
+        "category": 4,
+        "ombor": "Non Ombori",
+        "barcode": "8600000000043",
+        "desc": "Bodom non",
+        "r_price": 1800,
+        "s_price": 2500,
+        "stock": 80,
+        "start_date": "2025-06-04",
+        "end_date": "2025-06-11"
+    },
+    {
+        "id": 5,
+        "category": 5,
+        "ombor": "Sut Ombori",
+        "barcode": "8600000000050",
+        "desc": "Sut 1L",
+        "r_price": 6000,
+        "s_price": 8000,
+        "stock": 40,
+        "start_date": "2025-06-04",
+        "end_date": "2025-06-24"
+    },
+    {
+        "id": 6,
+        "category": 6,
+        "ombor": "Shirinlik Ombori",
+        "barcode": "8600000000067",
+        "desc": "Shokolad 'Alpen Gold'",
+        "r_price": 8500,
+        "s_price": 11000,
+        "stock": 60,
+        "start_date": "2025-06-04",
+        "end_date": "2025-08-03"
+    },
+    {
+        "id": 7,
+        "category": 7,
+        "ombor": "Gigiye­na Ombori",
+        "barcode": "8600000000074",
+        "desc": "Shampun 'Clear Men' 400ml",
+        "r_price": 18000,
+        "s_price": 22000,
+        "stock": 35,
+        "start_date": "2025-06-04",
+        "end_date": "2025-12-01"
+    },
+    {
+        "id": 8,
+        "category": 8,
+        "ombor": "Uy Ombori",
+        "barcode": "8600000000081",
+        "desc": "Tozalovchi suyuqlik 1L",
+        "r_price": 10000,
+        "s_price": 13500,
+        "stock": 25,
+        "start_date": "2025-06-04",
+        "end_date": "2025-10-02"
+    }
+]

@@ -1,0 +1,69 @@
+<h2>Mahsulotlarni boshqarish</h2>
+<a href="{% url 'admin_product_add' %}"
+   style="margin-bottom:10px; display:inline-block; background: #198754; color:white; padding:7px 14px; border-radius:5px; text-decoration:none;">
+   + Yangi mahsulot qo‘shish
+</a>
+<form method="get" action="{% url 'admin_products' %}" style="margin-bottom:20px;">
+    <input type="text" name="q" placeholder="Nom yoki barcode bo‘yicha qidiruv" value="{{ request.GET.q|default_if_none:'' }}" style="padding:6px; width:250px;">
+    <button type="submit" style="padding:6px 12px;">Qidirish</button>
+</form>
+
+<form method="post" action="{% url 'admin_product_bulk_delete' %}" id="bulk-delete-form">
+
+    {% csrf_token %}
+    <table border="1" cellpadding="7" cellspacing="0">
+        <tr>
+            <th><input type="checkbox" id="select-all"></th>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Barcode</th>
+            <th>Narxi</th>
+            <th>Amallar</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>
+                <input type="checkbox" name="selected_products" value="{{ product.id }}">
+            </td>
+            <td>{{ product.id }}</td>
+            <td>{{ product.desc }}</td>
+            <td>{{ product.barcode }}</td>
+            <td>{{ product.s_price }}</td>
+            <td>
+                <a href="{% url 'admin_product_edit' product.id %}" style="display: inline-block; background-color: #0275d8; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none;">✏️ Tahrirlash</a>
+                <a href="{% url 'admin_product_delete' product.id %}" style="display: inline-block; background-color: #d9534f; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; margin-left: 8px;">🗑️ O‘chirish</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">Mahsulotlar yo‘q.</td></tr>
+        {% endfor %}
+    </table>
+    <button type="submit" style="background-color: #d9534f; color: white; padding: 8px 16px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer;">
+        Tanlanganlarni o‘chirish
+    </button>
+</form>
+<script>
+document.getElementById('select-all').onclick = function() {
+    var checkboxes = document.getElementsByName('selected_products');
+    for (var checkbox of checkboxes) {
+        checkbox.checked = this.checked;
+    }
+}
+    <option value="">Barcha kategoriyalar</option>
+    {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if request.GET.cat == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+    {% endfor %}
+</script>
+
+
+<a href="{% url 'admin_management' %}"
+   style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px; margin-top:16px; display:inline-block;">
+    ⬅️ Orqaga
+</a>
+
+<script>
+    document.getElementById('select-all').addEventListener('change', function() {
+        let checkboxes = document.querySelectorAll('input[name="selected_products"]');
+        for (let c of checkboxes) c.checked = this.checked;
+    });
+</script>

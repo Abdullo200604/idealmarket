@@ -11,10 +11,28 @@
         th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
         th { background: #f2f2f2; }
         #cart-message { margin-top: 10px; }
+
+        /* 👇 Logout tugmasi uchun CSS */
+        .logout-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 14px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .logout-button:hover {
+            background-color: #c82333;
+        }
     </style>
 </head>
 <body>
 
+<!-- 👇 Logout tugmasi (yuqori o‘ng burchakda ko‘rinadi) -->
+<a href="{% url 'login' %}" class="logout-button">Chiqish (Logout)</a>
 <h2>Kassa oynasi</h2>
 
 <!-- Qidiruv formasi -->

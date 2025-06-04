@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yangi mahsulot qo‘shish</title>
+    <style>
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-back {
+            background-color: #a59219;
+            color: white;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Yangi mahsulot qo‘shish</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-save">Saqlash</button>
+        <a href="{% url 'admin_management' %}" class="btn btn-back">⬅️ Orqaga</a>
+    </form>
+</body>
+</html>
