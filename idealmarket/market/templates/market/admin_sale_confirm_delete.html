@@ -1,0 +1,7 @@
+<h2>Chek №{{ sale.id }} o‘chirish</h2>
+<p>Rostdan ham ushbu sotuvni o‘chirmoqchimisiz?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" style="background-color: #d9534f; color: white;">O‘chirish</button>
+    <a href="{% url 'admin_sales' %}">Bekor qilish</a>
+</form>

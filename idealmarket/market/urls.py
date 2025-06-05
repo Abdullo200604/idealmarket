@@ -59,4 +59,9 @@ urlpatterns = [
     path('management/groups/<int:group_id>/edit/', views.admin_group_edit, name='admin_group_edit'),
     path('management/groups/<int:group_id>/delete/', views.admin_group_delete, name='admin_group_delete'),
 
+    # Sotuvlar
+    path('management/sales/', views.admin_sales, name='admin_sales'),
+    path('management/sales/<int:sale_id>/', views.admin_sale_detail, name='admin_sale_detail'),
+    path('management/sales/<int:sale_id>/delete/', views.admin_sale_delete, name='admin_sale_delete'),
+
 ]

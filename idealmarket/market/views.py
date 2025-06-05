@@ -655,3 +655,23 @@ def admin_group_delete(request, group_id):
         group.delete()
         return redirect('admin_groups')
     return render(request, 'market/admin_group_confirm_delete.html', {'group': group})
+
+# Sotuvlar
+@user_passes_test(lambda u: u.is_superuser)
+def admin_sales(request):
+    sales = Sale.objects.select_related('created_by').order_by('-created_at')
+    return render(request, 'market/admin_sales.html', {'sales': sales})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_sale_detail(request, sale_id):
+    sale = get_object_or_404(Sale, pk=sale_id)
+    items = sale.items.select_related('product')
+    return render(request, 'market/admin_sale_detail.html', {'sale': sale, 'items': items})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_sale_delete(request, sale_id):
+    sale = get_object_or_404(Sale, pk=sale_id)
+    if request.method == 'POST':
+        sale.delete()
+        return redirect('admin_sales')
+    return render(request, 'market/admin_sale_confirm_delete.html', {'sale': sale})

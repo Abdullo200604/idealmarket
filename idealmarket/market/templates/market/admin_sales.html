@@ -1,13 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h2>Mahsulotlarni boshqarish</h2>
-<p>Bu yerda mahsulotlar ro‘yxati, qo‘shish, tahrirlash va o‘chirish funksiyalari bo‘ladi.</p>
-<a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px;">⬅️ Orqaga</a>
+<h2>Sotuvlar ro‘yxati</h2>
+<table border="1" cellpadding="7" cellspacing="0">
+    <tr>
+        <th>ID</th>
+        <th>Sana</th>
+        <th>Kassir</th>
+        <th>Summa</th>
+        <th>Amallar</th>
+    </tr>
+    {% for s in sales %}
+    <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.created_at }}</td>
+        {% if s.created_by %}
+            {{ s.created_by.username }}
+        {% else %}
+            —
+        {% endif %}
 
-</body>
-</html>
+        <td>{{ s.total_sum }}</td>
+        <td>
+            <a href="{% url 'admin_sale_detail' s.id %}">Ko‘rish</a>
+            <a href="{% url 'admin_sale_delete' s.id %}">O‘chirish</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Sotuvlar yo‘q.</td></tr>
+    {% endfor %}
+</table>
+<a href="{% url 'admin_management' %}">⬅️ Orqaga</a>
