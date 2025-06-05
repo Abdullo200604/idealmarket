@@ -47,4 +47,16 @@ urlpatterns = [
     path('management/ombors/<int:pk>/edit/', views.admin_ombor_edit, name='admin_ombor_edit'),
     path('management/ombors/<int:pk>/delete/', views.admin_ombor_delete, name='admin_ombor_delete'),
 
+    # users
+    path('management/users/', views.admin_users, name='admin_users'),
+    path('management/users/add/', views.admin_user_add, name='admin_user_add'),
+    path('management/users/<int:user_id>/edit/', views.admin_user_edit, name='admin_user_edit'),
+    path('management/users/<int:user_id>/delete/', views.admin_user_delete, name='admin_user_delete'),
+
+    #Group
+    path('management/groups/', views.admin_groups, name='admin_groups'),
+    path('management/groups/add/', views.admin_group_add, name='admin_group_add'),
+    path('management/groups/<int:group_id>/edit/', views.admin_group_edit, name='admin_group_edit'),
+    path('management/groups/<int:group_id>/delete/', views.admin_group_delete, name='admin_group_delete'),
+
 ]

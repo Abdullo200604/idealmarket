@@ -1,0 +1,7 @@
+<h2>Guruhni tahrirlash</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Nom: <input type="text" name="name" value="{{ group.name }}" required></label><br>
+    <button type="submit" style="background: #0275d8; color: #fff; padding: 7px 18px; border-radius: 5px;">Saqlash</button>
+    <a href="{% url 'admin_groups' %}">Bekor qilish</a>
+</form>

@@ -1,0 +1,21 @@
+<h2>Yangi foydalanuvchi qo‘shish</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Login: <input type="text" name="username" required></label><br>
+    <label>Ism: <input type="text" name="first_name"></label><br>
+    <label>Familiya: <input type="text" name="last_name"></label><br>
+    <label>Parol: <input type="password" name="password" required></label><br>
+    <label>Roli:
+        <select name="role">
+            <option value="kassir">Kassir</option>
+            <option value="admin">Admin</option>
+        </select>
+    </label><br>
+    <button type="submit" style="background: #198754; color: #fff; padding: 7px 18px; border-radius: 5px;">Qo‘shish</button>
+    <a href="{% url 'admin_users' %}">Bekor qilish</a>
+</form>
+{% if messages %}
+    {% for m in messages %}
+        <div style="color:red;">{{ m }}</div>
+    {% endfor %}
+{% endif %}

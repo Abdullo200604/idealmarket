@@ -1,13 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h2>Mahsulotlarni boshqarish</h2>
-<p>Bu yerda mahsulotlar ro‘yxati, qo‘shish, tahrirlash va o‘chirish funksiyalari bo‘ladi.</p>
-<a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px;">⬅️ Orqaga</a>
-
-</body>
-</html>
+<h2>Guruhlar</h2>
+<a href="{% url 'admin_group_add' %}" style="background:#198754;color:#fff;padding:8px 14px;border-radius:5px;text-decoration:none;">+ Yangi guruh</a>
+<table border="1" cellpadding="7" cellspacing="0">
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Amallar</th>
+    </tr>
+    {% for group in groups %}
+    <tr>
+        <td>{{ group.id }}</td>
+        <td>{{ group.name }}</td>
+        <td>
+            <a href="{% url 'admin_group_edit' group.id %}" style="background-color: #0275d8; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none;">✏️ Tahrirlash</a>
+            <a href="{% url 'admin_group_delete' group.id %}" style="background-color: #d9534f; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; margin-left: 8px;">🗑️ O‘chirish</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="{% url 'admin_management' %}">⬅️ Orqaga</a>

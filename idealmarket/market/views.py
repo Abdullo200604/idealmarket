@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.db.models import Q, Count, Sum
 from django.views.decorators.http import require_POST
@@ -561,3 +562,96 @@ def admin_ombor_delete(request, pk):
         ombor.delete()
         return redirect('admin_ombors')
     return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})
+
+#Users
+@user_passes_test(lambda u: u.is_superuser)
+def admin_users(request):
+    users = User.objects.all().order_by('-is_superuser', 'username')
+    return render(request, 'market/admin_users.html', {'users': users})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_user_add(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        role = request.POST.get('role')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Bunday login mavjud!")
+        else:
+            user = User.objects.create_user(username=username, password=password, first_name=first_name, last_name=last_name)
+            if role == 'kassir':
+                group, created = Group.objects.get_or_create(name='Kassir')
+                user.groups.add(group)
+            elif role == 'admin':
+                user.is_superuser = True
+                user.is_staff = True
+                user.save()
+            return redirect('admin_users')
+    return render(request, 'market/admin_user_add.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_user_edit(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    if request.method == "POST":
+        user.username = request.POST.get('username')
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        role = request.POST.get('role')
+        user.groups.clear()
+        user.is_superuser = False
+        user.is_staff = False
+        if role == 'kassir':
+            group, created = Group.objects.get_or_create(name='Kassir')
+            user.groups.add(group)
+        elif role == 'admin':
+            user.is_superuser = True
+            user.is_staff = True
+        user.save()
+        return redirect('admin_users')
+    return render(request, 'market/admin_user_edit.html', {'user_obj': user})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_user_delete(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    if request.method == "POST":
+        user.delete()
+        return redirect('admin_users')
+    return render(request, 'market/admin_user_confirm_delete.html', {'user_obj': user})
+
+#group
+@user_passes_test(lambda u: u.is_superuser)
+def admin_groups(request):
+    groups = Group.objects.all().order_by('name')
+    return render(request, 'market/admin_groups.html', {'groups': groups})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_group_add(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if Group.objects.filter(name=name).exists():
+            messages.error(request, "Bu nomli group bor!")
+        else:
+            Group.objects.create(name=name)
+            return redirect('admin_groups')
+    return render(request, 'market/admin_group_add.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_group_edit(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        group.name = name
+        group.save()
+        return redirect('admin_groups')
+    return render(request, 'market/admin_group_edit.html', {'group': group})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_group_delete(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    if request.method == 'POST':
+        group.delete()
+        return redirect('admin_groups')
+    return render(request, 'market/admin_group_confirm_delete.html', {'group': group})

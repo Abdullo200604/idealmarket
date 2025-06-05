@@ -1,13 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h2>Mahsulotlarni boshqarish</h2>
-<p>Bu yerda mahsulotlar ro‘yxati, qo‘shish, tahrirlash va o‘chirish funksiyalari bo‘ladi.</p>
-<a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px;">⬅️ Orqaga</a>
-
-</body>
-</html>
+<h2>Foydalanuvchilar</h2>
+<a href="{% url 'admin_user_add' %}" style="background:#198754;color:#fff;padding:8px 14px;border-radius:5px;text-decoration:none;">+ Yangi foydalanuvchi</a>
+<table border="1" cellpadding="7" cellspacing="0">
+    <tr>
+        <th>ID</th>
+        <th>Login</th>
+        <th>Ism</th>
+        <th>Roli</th>
+        <th>Amallar</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.get_full_name }}</td>
+        <td>
+            {% if user.is_superuser %}Admin{% elif user.groups.first %}{{ user.groups.first.name }}{% else %}Foydalanuvchi{% endif %}
+        </td>
+        <td>
+            <a href="{% url 'admin_user_edit' user.id %}">✏️</a>
+            <a href="{% url 'admin_user_delete' user.id %}">🗑️</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="{% url 'admin_management' %}">⬅️ Orqaga</a>

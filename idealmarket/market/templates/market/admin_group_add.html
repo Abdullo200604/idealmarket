@@ -1,0 +1,12 @@
+<h2>Yangi guruh qo‘shish</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Nom: <input type="text" name="name" required></label><br>
+    <button type="submit" style="background: #198754; color: #fff; padding: 7px 18px; border-radius: 5px;">Qo‘shish</button>
+    <a href="{% url 'admin_groups' %}">Bekor qilish</a>
+</form>
+{% if messages %}
+    {% for m in messages %}
+        <div style="color:red;">{{ m }}</div>
+    {% endfor %}
+{% endif %}
