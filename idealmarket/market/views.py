@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 from django import forms
-from .forms import ProductForm
+from .forms import ProductForm, OmborForm
 import pandas as pd
 from django.db.models.functions import ExtractHour
 
@@ -416,9 +416,7 @@ def admin_users(request):
 def admin_groups(request):
     return render(request, 'market/admin_groups.html')
 
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombors(request):
-    return render(request, 'market/admin_ombors.html')
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def admin_sales(request):
@@ -675,3 +673,45 @@ def admin_sale_delete(request, sale_id):
         sale.delete()
         return redirect('admin_sales')
     return render(request, 'market/admin_sale_confirm_delete.html', {'sale': sale})
+
+
+#ombor
+@login_required
+@user_passes_test(is_kassir_or_admin)
+def admin_ombors(request):
+    ombors = Ombor.objects.all()
+    return render(request, 'market/admin_ombors.html', {'ombors': ombors})
+
+@login_required
+@user_passes_test(is_kassir_or_admin)
+def admin_ombor_add(request):
+    if request.method == 'POST':
+        form = OmborForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_ombors')
+    else:
+        form = OmborForm()
+    return render(request, 'market/admin_ombor_add.html', {'form': form})
+
+@login_required
+@user_passes_test(is_kassir_or_admin)
+def admin_ombor_edit(request, pk):
+    ombor = get_object_or_404(Ombor, pk=pk)
+    if request.method == 'POST':
+        form = OmborForm(request.POST, instance=ombor)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_ombors')
+    else:
+        form = OmborForm(instance=ombor)
+    return render(request, 'market/admin_ombor_edit.html', {'form': form, 'ombor': ombor})
+
+@login_required
+@user_passes_test(is_kassir_or_admin)
+def admin_ombor_delete(request, pk):
+    ombor = get_object_or_404(Ombor, pk=pk)
+    if request.method == 'POST':
+        ombor.delete()
+        return redirect('admin_ombors')
+    return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})

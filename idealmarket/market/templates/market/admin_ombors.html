@@ -1,13 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h2>Mahsulotlarni boshqarish</h2>
-<p>Bu yerda mahsulotlar ro‘yxati, qo‘shish, tahrirlash va o‘chirish funksiyalari bo‘ladi.</p>
+<h2>Omborlar boshqaruvi</h2>
+<a href="{% url 'admin_ombor_add' %}" style="margin-bottom:10px; display:inline-block; background: #198754; color:white; padding:7px 14px; border-radius:5px; text-decoration:none;">+ Yangi ombor qo‘shish</a>
+<table border="1" cellpadding="7" cellspacing="0">
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Amallar</th>
+    </tr>
+    {% for ombor in ombors %}
+    <tr>
+        <td>{{ ombor.id }}</td>
+        <td>{{ ombor.name }}</td>
+        <td>
+            <a href="{% url 'admin_ombor_edit' ombor.id %}" style="display: inline-block; background-color: #0275d8; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none;">✏️ Tahrirlash</a>
+            <a href="{% url 'admin_ombor_delete' ombor.id %}" style="display: inline-block; background-color: #d9534f; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; margin-left: 8px;">🗑️ O‘chirish</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">Omborlar yo‘q.</td></tr>
+    {% endfor %}
+</table>
 <a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px;">⬅️ Orqaga</a>
-
-</body>
-</html>
