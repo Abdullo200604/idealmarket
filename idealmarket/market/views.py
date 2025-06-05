@@ -550,7 +550,7 @@ def admin_ombor_edit(request, pk):
             return redirect('admin_ombors')
     else:
         form = OmborForm(instance=ombor)
-    return render(request, 'market/admin_ombor_form.html', {'form': form})
+    return render(request, '', {'form': form})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
