@@ -20,13 +20,6 @@ urlpatterns = [
 
     #Admin
     path('management/', views.admin_management, name='admin_management'),
-    path('management/products/', views.admin_products, name='admin_products'),
-    path('management/categories/', views.admin_categories, name='admin_categories'),
-    path('management/users/', views.admin_users, name='admin_users'),
-    path('management/groups/', views.admin_groups, name='admin_groups'),
-    path('management/ombors/', views.admin_ombors, name='admin_ombors'),
-    path('management/sales/', views.admin_sales, name='admin_sales'),
-    path('management/', views.admin_management, name='admin_management'),
 
     #Admin product
     path('management/products/', views.admin_products, name='admin_products'),
