@@ -1,6 +1,13 @@
 <h2>Chek №{{ sale.id }} tafsiloti</h2>
 <p>Sana: {{ sale.created_at }}</p>
-<p>Kassir: {{ sale.created_by.username if sale.created_by else "—" }}</p>
+<p>
+    Kassir:
+    {% if sale.created_by %}
+        {{ sale.created_by.username }}
+    {% else %}
+        —
+    {% endif %}
+</p>
 <table border="1" cellpadding="7" cellspacing="0">
     <tr>
         <th>Mahsulot</th>
@@ -14,6 +21,8 @@
         <td>{{ i.quantity }}</td>
         <td>{{ i.price }}</td>
         <td>{{ i.price|floatformat:2|add:""|floatformat:2|add:i.quantity|floatformat:2 }}</td>
+        {# Agar narx*miqdor ko‘rsatilishi kerak bo‘lsa, quyidagidan foydalaning: #}
+        {# <td>{{ i.price|floatformat:2|mul:i.quantity|floatformat:2 }}</td> #}
     </tr>
     {% endfor %}
 </table>

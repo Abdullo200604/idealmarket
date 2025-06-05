@@ -1,0 +1,7 @@
+<h2>Yangi ombor qo‘shish</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" style="background-color: #198754; color: white; padding: 8px 16px; border: none; border-radius: 5px;">Saqlash</button>
+    <a href="{% url 'admin_ombors' %}" style="padding: 8px 16px; background-color: #6c757d; color: white; border-radius: 5px; text-decoration: none;">Bekor qilish</a>
+</form>
