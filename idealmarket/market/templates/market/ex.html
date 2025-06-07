@@ -1,0 +1,32 @@
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Barcode</th>
+            <th>Ombor</th>
+            <th>Narxi</th>
+            <th>Savatga qo‘shish</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for product in products %}
+        <tr>
+            <td>{{ product.desc }}</td>
+            <td>{{ product.barcode }}</td>
+            <td>{{ product.ombor.name }}</td>
+            <td>{{ product.s_price }}</td>
+            <td>
+                {% if product.is_active %}
+                <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" style="width:65px;">
+                    <button type="submit" class="btn btn-success btn-sm">Qo‘shish</button>
+                </form>
+                {% else %}
+                    <span class="text-danger fw-bold">Muddati tugagan</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
