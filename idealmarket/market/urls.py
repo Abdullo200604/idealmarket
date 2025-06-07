@@ -64,4 +64,9 @@ urlpatterns = [
     path('management/sales/<int:sale_id>/', views.admin_sale_detail, name='admin_sale_detail'),
     path('management/sales/<int:sale_id>/delete/', views.admin_sale_delete, name='admin_sale_delete'),
 
+    #imports
+    path('management/categories/export/', views.management_category_export, name='management_category_export'),
+    path('management/products/import/', views.management_product_import, name='management_product_import'),
+    path('management/categories/import/', views.management_category_import, name='management_category_import'),
+    path('management/products/export/', views.management_product_export, name='management_product_export'),
 ]

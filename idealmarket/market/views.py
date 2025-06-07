@@ -19,7 +19,7 @@ from django.db.models.functions import ExtractHour
 #Models
 from .models import Ombor
 from .models import Catagory
-
+from .models import Product
 
 
 
@@ -715,3 +715,79 @@ def admin_ombor_delete(request, pk):
         ombor.delete()
         return redirect('admin_ombors')
     return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})
+
+def management_product_import(request):
+    if request.method == "POST":
+        import pandas as pd
+        file = request.FILES['file']
+        try:
+            df = pd.read_json(file)
+        except Exception as e:
+            return HttpResponse("JSON faylni o‘qib bo‘lmadi: " + str(e))
+        for _, row in df.iterrows():
+            # Kategoriya va Ombor nomi orqali id ni topamiz
+            from .models import Catagory, Ombor
+            try:
+                catagory_obj = Catagory.objects.get(name=row['catagory'])
+                ombor_obj = Ombor.objects.get(name=row['ombor'])
+            except Catagory.DoesNotExist:
+                return HttpResponse(f"Kategoriya topilmadi: {row['catagory']}")
+            except Ombor.DoesNotExist:
+                return HttpResponse(f"Ombor topilmadi: {row['ombor']}")
+            Product.objects.update_or_create(
+                barcode=row['barcode'],
+                defaults={
+                    'catagory': catagory_obj,
+                    'ombor': ombor_obj,
+                    'desc': row.get('desc', ''),
+                    'r_price': row.get('r_price', 0),
+                    's_price': row.get('s_price', 0),
+                    'stock': row.get('stock', 0),
+                    'start_date': row.get('start_date', None),
+                    'end_date': row.get('end_date', None),
+                }
+            )
+        return redirect('admin_products')
+    return HttpResponse("Faqat POST so‘rov!", status=405)
+
+
+
+
+def management_product_export(request):
+    import pandas as pd
+    products = Product.objects.all().values(
+        'id', 'catagory_id', 'ombor_id', 'barcode', 'desc', 'r_price', 's_price', 'stock', 'start_date', 'end_date'
+    )
+    df = pd.DataFrame(list(products))
+    response = HttpResponse(content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename="products_export.json"'
+    response.write(df.to_json(orient='records'))
+    return response
+
+def management_category_import(request):
+    if request.method == "POST":
+        import pandas as pd
+        file = request.FILES['file']
+        try:
+            df = pd.read_json(file)
+        except Exception as e:
+            return HttpResponse("JSON faylni o‘qib bo‘lmadi: " + str(e))
+
+        for _, row in df.iterrows():
+            Catagory.objects.update_or_create(
+                name=row['name'],
+                defaults={
+                    'desc': row.get('desc', '')
+                }
+            )
+        return redirect('admin_categories')
+    return HttpResponse("Faqat POST so‘rov!", status=405)
+
+def management_category_export(request):
+    import pandas as pd
+    categories = Catagory.objects.all().values('id', 'name', 'desc')
+    df = pd.DataFrame(list(categories))
+    response = HttpResponse(content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename="categories_export.json"'
+    response.write(df.to_json(orient='records'))
+    return response

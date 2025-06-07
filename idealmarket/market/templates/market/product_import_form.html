@@ -1,0 +1,6 @@
+<h3>Excel yoki CSV dan mahsulot import qilish</h3>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".xlsx,.csv" required>
+    <button type="submit" style="background: #198754; color:white;">Import qilish</button>
+</form>

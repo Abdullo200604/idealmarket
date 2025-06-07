@@ -3,6 +3,7 @@
    style="margin-bottom:10px; display:inline-block; background: #198754; color:white; padding:7px 14px; border-radius:5px; text-decoration:none;">
    + Yangi mahsulot qo‘shish
 </a>
+
 <form method="get" action="{% url 'admin_products' %}" style="margin-bottom:20px;">
     <input type="text" name="q" placeholder="Nom yoki barcode bo‘yicha qidiruv" value="{{ request.GET.q|default_if_none:'' }}" style="padding:6px; width:250px;">
     <button type="submit" style="padding:6px 12px;">Qidirish</button>
@@ -60,6 +61,12 @@ document.getElementById('select-all').onclick = function() {
    style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px; margin-top:16px; display:inline-block;">
     ⬅️ Orqaga
 </a>
+<a href="{% url 'management_product_export' %}" style="background: #007bff; color:white; padding:7px 14px; border-radius:5px; text-decoration:none; margin-bottom:8px; display:inline-block;">⬇️ Excelga eksport</a>
+<form method="post" enctype="multipart/form-data" action="{% url 'management_product_import' %}">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".json" required>
+    <button type="submit" style="background: #0d6efd; color: white; border: none; padding: 6px 16px; border-radius: 4px;">JSON import</button>
+</form>
 
 <script>
     document.getElementById('select-all').addEventListener('change', function() {
