@@ -91,17 +91,20 @@ def kassa(request):
 def cart_add(request, product_id):
     if request.method != "POST":
         return redirect('kassa')
-    product = Product.objects.get(pk=product_id)
+
+    product = get_object_or_404(Product, pk=product_id)
+
+    # Muddat tugagan mahsulot uchun xatolik
     if not product.is_active:
         msg = "Bu mahsulot muddati tugagan va sotib bo‘lmaydi!"
-        return JsonResponse(
-            {'message': msg, 'cart_html': render_to_string('market/_cart_partial.html', {}, request=request)})
+        return JsonResponse({'message': msg}, status=400)
+
     cart = request.session.get('cart', {})
     quantity = int(request.POST.get('quantity', 1))
     cart[str(product_id)] = cart.get(str(product_id), 0) + quantity
     request.session['cart'] = cart
 
-    # Yangi savat holatini qaytarish
+    # Savat holatini qaytarish
     cart_items = []
     total = 0
     for pid, qty in cart.items():
@@ -113,6 +116,7 @@ def cart_add(request, product_id):
             'quantity': qty,
             'item_total': item_total
         })
+
     html = render_to_string('market/_cart_partial.html', {
         'cart_items': cart_items,
         'total': total,
@@ -125,7 +129,7 @@ def cart_update(request, product_id):
     action = request.POST.get('action')
     cart = request.session.get('cart', {})
     if action not in ['add', 'remove']:
-        return JsonResponse({'message': 'Noto\'g\'ri amal'}, status=400)
+        return JsonResponse({'message': 'Noto‘g‘ri amal'}, status=400)
     product = get_object_or_404(Product, pk=product_id)
     if action == 'add':
         if not product.is_active:
@@ -149,6 +153,7 @@ def cart_update(request, product_id):
             'quantity': qty,
             'item_total': item_total
         })
+
     html = render_to_string('market/_cart_partial.html', {
         'cart_items': cart_items,
         'total': total,
@@ -161,6 +166,8 @@ def cart_remove(request, product_id):
     if str(product_id) in cart:
         del cart[str(product_id)]
     request.session['cart'] = cart
+
+    # AJAX (fetch/XHR) orqali so‘rov keldi
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         cart_items = []
         total = 0
@@ -177,8 +184,11 @@ def cart_remove(request, product_id):
             'cart_items': cart_items,
             'total': total,
         }, request=request)
-        return JsonResponse({'cart_html': html})
+        return JsonResponse({'cart_html': html, 'message': "Mahsulot o‘chirildi!"})
+
+    # Oddiy so‘rov bo‘lsa
     return redirect('kassa')
+
 
 @login_required
 def cart_clear(request):

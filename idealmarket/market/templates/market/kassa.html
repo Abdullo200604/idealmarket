@@ -9,26 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
     <style>
         body { background: #f9fafc; }
-        .main-card {
-            margin: 35px auto;
-            padding: 32px;
-            max-width: 950px;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 20px #ececec;
-        }
-        .logout-button {
-            position: absolute;
-            top: 18px;
-            right: 32px;
-            background: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        .logout-button:hover { background: #c82333; }
+        .main-card { margin: 35px auto; padding: 32px; max-width: 950px; background: #fff; border-radius: 18px; box-shadow: 0 4px 20px #ececec; }
+        .logout-button { position: absolute; top: 18px; right: 32px; background: #dc3545; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; text-decoration: none;}
+        .logout-button:hover { background: #c82333;}
+        .products-scroll-area { max-height: 280px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -37,23 +21,16 @@
 
 <div class="main-card">
     <h2>Kassa oynasi</h2>
-
-    <!-- Qidiruv -->
     <input type="text" id="search-input" class="form-control mb-3" placeholder="Qidiruv (nom yoki barcode)" autocomplete="off" style="max-width:350px;">
-
-    <!-- Mahsulotlar jadvali -->
-    <div id="products-table">
-        {% include "market/_products_table.html" %}
+    <!-- Mahsulotlar jadvali scroll bilan -->
+    <div class="products-scroll-area mb-3">
+        <div id="products-table">
+            {% include "market/_products_table.html" %}
+        </div>
     </div>
-
     <hr>
-
-    <!-- Savat -->
-    <div id="cart-area">
-        {% include "market/_cart_partial.html" %}
-    </div>
+    {% include "market/_cart_partial.html" %}
     <div id="cart-message"></div>
-
     <button type="button" onclick="generatePDF()" class="btn btn-outline-info mt-3">Chekni PDFga saqlash</button>
     <a href="{% url 'sales_list' %}" class="btn btn-outline-secondary mt-3">Cheklar tarixi</a>
     <a href="{% url 'statistics' %}" class="btn btn-outline-primary mt-3 ms-2">Statistika va hisobotlar</a>
@@ -61,7 +38,6 @@
 
 <script>
 $(document).ready(function(){
-    // AJAX qidiruv
     $('#search-input').on('input', function(){
         var query = $(this).val();
         $.ajax({
@@ -74,8 +50,8 @@ $(document).ready(function(){
         });
     });
 
-    // AJAX savat qo‘shish va o‘chirish
-    $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form', function(e){
+    // SAVATdagi harakatlar (AJAX)
+    $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form, .update-cart', function(e){
         e.preventDefault();
         var $form = $(this);
         $.ajax({
@@ -84,39 +60,29 @@ $(document).ready(function(){
             data: $form.serialize(),
             headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
             success: function(data){
-                $('#cart-area').html(data.cart_html);
+                $('#cart-area').replaceWith(data.cart_html);
                 $('#cart-message').html(data.message ? '<b style="color:green;">' + data.message + '</b>' : '');
             },
-            error: function(){
-                $('#cart-message').html('<b style="color:red;">Xatolik yuz berdi!</b>');
+            error: function(xhr){
+                let msg = 'Xatolik yuz berdi!';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                $('#cart-message').html('<b style="color:red;">' + msg + '</b>');
             }
         });
     });
 
-    // Mahsulot miqdorini o‘zgartirish
-    $(document).on('click', '.update-cart', function(e){
-        e.preventDefault();
-        var productId = $(this).data('id');
-        var action = $(this).data('action');
-        var csrftoken = $('[name="csrfmiddlewaretoken"]').first().val();
-
-        $.ajax({
-            type: 'POST',
-            url: `/cart/update/${productId}/`,
-            data: { 'action': action },
-            headers: {'X-CSRFToken': csrftoken},
-            success: function(data){
-                $('#cart-area').html(data.cart_html);
-                $('#cart-message').html('<b style="color:green;">' + data.message + '</b>');
-            },
-            error: function(){
-                $('#cart-message').html('<b style="color:red;">Xatolik yuz berdi!</b>');
-            }
+    // SAVATDA QIDIRUV
+    $(document).on('input', '#cart-search', function(){
+        var value = $(this).val().toLowerCase();
+        $('.cart-item-row').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
         });
     });
 });
 
-// PDFga saqlash
+// PDF (eski)
 function generatePDF() {
     var items = [
         ['Mahsulot', 'Miqdori', 'Jami'],

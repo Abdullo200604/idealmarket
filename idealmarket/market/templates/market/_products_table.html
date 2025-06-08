@@ -1,30 +1,30 @@
-<div style="max-height: 320px; overflow-y: auto;">
-  <table class="table table-striped table-bordered table-sm">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Barcode</th>
-        <th>Ombor</th>
-        <th>Narxi</th>
-        <th>Savatga qo‘shish</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for product in products %}
-      <tr>
-        <td>{{ product.desc }}</td>
-        <td>{{ product.barcode }}</td>
-        <td>{{ product.warehouse }}</td>
-        <td>{{ product.s_price }}</td>
-        <td>
-          <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
-            {% csrf_token %}
-            <input type="number" name="miqdor" value="1" min="1" style="width: 60px;" />
-            <button type="submit" class="btn btn-success btn-sm">Qo‘shish</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div style="max-height: 350px; overflow-y: auto;">
+    <table class="table table-bordered align-middle" style="position: relative;">
+        <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
+            <tr>
+                <th>Nom</th>
+                <th>Barcode</th>
+                <th>Ombor</th>
+                <th>Narxi</th>
+                <th>Savatga qo‘shish</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.desc }}</td>
+                <td>{{ product.barcode }}</td>
+                <td>{{ product.ombor.name }}</td>
+                <td>{{ product.s_price }}</td>
+                <td>
+                    <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form d-flex align-items-center gap-1">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="1" class="form-control form-control-sm" style="width: 60px;">
+                        <button class="btn btn-sm btn-success">Qo‘shish</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>

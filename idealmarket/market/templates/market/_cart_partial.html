@@ -1,39 +1,54 @@
-<h3>Savat (Chek)</h3>
-<table border="1">
-    <tr>
-        <th>Mahsulot</th>
-        <th>Miqdori</th>
-        <th>Jami</th>
-        <th>Harakatlar</th>
-    </tr>
-    {% for item in cart_items %}
-    <tr>
-        <td>{{ item.product.desc }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.item_total }}</td>
-        <td>
-            <button class="update-cart" data-id="{{ item.product.id }}" data-action="add">+</button>
-            <button class="update-cart" data-id="{{ item.product.id }}" data-action="remove">-</button>
-            <form method="post" action="{% url 'cart_remove' item.product.id %}" class="cart-remove-form" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">O‘chirish</button>
-            </form>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4">Savat bo‘sh!</td>
-    </tr>
-    {% endfor %}
-</table>
-
-<p><b>Umumiy summa: {{ total }}</b></p>
-
-<form method="post" action="{% url 'cart_clear' %}" id="cart-clear-form">
-    {% csrf_token %}
-    <button type="submit">Savatni tozalash</button>
-</form>
-<form method="post" action="{% url 'cart_checkout' %}" id="cart-checkout-form">
-    {% csrf_token %}
-    <button type="submit">Chekni yakunlash</button>
-</form>
+<div id="cart-area">
+    <h4>Savat (Chek)</h4>
+    <input type="text" id="cart-search" class="form-control mb-2" placeholder="Savatda qidiruv..." style="max-width:350px;">
+    <div class="cart-scroll-area" style="max-height:220px; overflow-y:auto;">
+        <table class="table table-bordered align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Mahsulot</th>
+                    <th>Miqdori</th>
+                    <th>Jami</th>
+                    <th>Harakatlar</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in cart_items %}
+                <tr class="cart-item-row">
+                    <td>{{ item.product.desc }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.item_total }}</td>
+                    <td>
+                        <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-inline update-cart">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add">
+                            <button type="submit" class="btn btn-sm btn-success">+</button>
+                        </form>
+                        <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-inline update-cart">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="remove">
+                            <button type="submit" class="btn btn-sm btn-warning">−</button>
+                        </form>
+                        <form method="post" action="{% url 'cart_remove' item.product.id %}" class="d-inline cart-remove-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">O‘chirish</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">Savat bo‘sh!</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <h5 class="mt-2"><strong>Umumiy summa:</strong> {{ total }}</h5>
+    <div class="mb-3">
+        <form id="cart-clear-form" method="post" action="{% url 'cart_clear' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary">Savatni tozalash</button>
+        </form>
+        <form id="cart-checkout-form" method="post" action="{% url 'cart_checkout' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success">Chekni yakunlash</button>
+        </form>
+    </div>
+</div>
