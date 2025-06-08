@@ -10,7 +10,9 @@
     </style>
 </head>
 <body>
+
 <h2>Cheklar tarixi</h2>
+
 <table>
     <tr>
         <th>ID</th>
@@ -19,7 +21,7 @@
         <th>Umumiy summa</th>
         <th>Batafsil</th>
     </tr>
-    {% for sale in sales %}
+    {% for sale in sales_data %}
     <tr>
         <td>{{ sale.id }}</td>
         <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
@@ -30,21 +32,8 @@
                 <span style="color:gray;">No name</span>
             {% endif %}
         </td>
-        <td>
-            {% with total=0 %}
-            {% for item in sale.items.all %}
-                {% widthratio item.price|floatformat:2 item.price 1 as one_price %}
-                {% widthratio item.quantity 1 1 as one_qty %}
-                {% widthratio one_price one_qty 1 as total_item %}
-                {% with total=total|add:total_item %}
-                {% endwith %}
-            {% endfor %}
-            {{ total }}
-            {% endwith %}
-        </td>
-        <td>
-            <a href="{% url 'sale_detail' sale.id %}">Ko‘rish</a>
-        </td>
+        <td>{{ sale.total_sum }}</td>
+        <td><a href="{% url 'sale_detail' sale.id %}">Ko‘rish</a></td>
     </tr>
     {% empty %}
     <tr>
@@ -52,6 +41,7 @@
     </tr>
     {% endfor %}
 </table>
+
 <a href="{% url 'kassa' %}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Kassaga qaytish</a>
 
 <a href="{% url 'export_sales_pdf' %}" class="btn btn-primary" target="_blank">PDFga eksport qilish</a>

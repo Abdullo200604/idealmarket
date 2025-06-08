@@ -23,6 +23,10 @@ from .models import Product
 
 
 
+
+def home(request):
+    return render(request, "index.html")
+
 # ROLLARNI ANIQLASH
 def is_kassir_or_admin(user):
     return user.is_superuser or user.groups.filter(name='Kassir').exists()
@@ -245,8 +249,20 @@ def cart_checkout(request):
 
 @user_passes_test(is_kassir_or_admin)
 def sales_list(request):
-    sales = Sale.objects.order_by('-created_at')
-    return render(request, 'market/sales_list.html', {'sales': sales})
+    sales = Sale.objects.order_by('-created_at').select_related('created_by')
+    sales_data = []
+    for sale in sales:
+        total_sum = sum([item.quantity * item.price for item in sale.items.all()])
+        sales_data.append({
+            'id': sale.id,
+            'created_at': sale.created_at,
+            'created_by': sale.created_by,
+            'total_sum': total_sum,
+        })
+    return render(request, 'market/sales_list.html', {
+        'sales_data': sales_data,
+    })
+
 
 @user_passes_test(is_kassir_or_admin)
 def sale_detail(request, pk):

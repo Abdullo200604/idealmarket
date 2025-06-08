@@ -1,5 +1,6 @@
-<table class="table table-bordered">
-    <thead>
+<div class="scrollable-table">
+    <table class="table table-striped table-bordered table-sm">
+        <thead>
         <tr>
             <th>Nom</th>
             <th>Barcode</th>
@@ -7,26 +8,32 @@
             <th>Narxi</th>
             <th>Savatga qo‘shish</th>
         </tr>
-    </thead>
-    <tbody>
-    {% for product in products %}
+        </thead>
+        <tbody>
+        {% for mahsulot in mahsulotlar %}
         <tr>
-            <td>{{ product.desc }}</td>
-            <td>{{ product.barcode }}</td>
-            <td>{{ product.ombor.name }}</td>
-            <td>{{ product.s_price }}</td>
+            <td>{{ mahsulot.nom }}</td>
+            <td>{{ mahsulot.barcode }}</td>
+            <td>{{ mahsulot.ombor }}</td>
+            <td>{{ mahsulot.narx }}</td>
             <td>
-                {% if product.is_active %}
-                <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form">
+                <form method="post" action="{% url 'savatga_qoshish' mahsulot.id %}" class="cart-add-form">
                     {% csrf_token %}
-                    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" style="width:65px;">
+                    <input type="number" name="miqdor" value="1" min="1" style="width: 60px;" />
                     <button type="submit" class="btn btn-success btn-sm">Qo‘shish</button>
                 </form>
-                {% else %}
-                    <span class="text-danger fw-bold">Muddati tugagan</span>
-                {% endif %}
             </td>
         </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.scrollable-table {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+</style>
