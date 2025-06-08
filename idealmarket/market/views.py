@@ -21,6 +21,7 @@ from .models import Ombor
 from .models import Catagory
 from .models import Product
 
+from django.contrib.auth.forms import AdminPasswordChangeForm
 
 
 
@@ -30,6 +31,22 @@ def home(request):
 # ROLLARNI ANIQLASH
 def is_kassir_or_admin(user):
     return user.is_superuser or user.groups.filter(name='Kassir').exists()
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_user_change_password(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    if request.method == 'POST':
+        form = AdminPasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Parol muvaffaqiyatli o‘zgartirildi.")
+            return redirect('admin_users')
+    else:
+        form = AdminPasswordChangeForm(user)
+    return render(request, 'market/admin_user_change_password.html', {
+        'form': form,
+        'user_obj': user  # E’TIBOR BER: user_obj
+    })
 
 
 @login_required

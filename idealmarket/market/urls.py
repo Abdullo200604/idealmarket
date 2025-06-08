@@ -67,4 +67,7 @@ urlpatterns = [
     path('management/sales/<int:sale_id>/', views.admin_sale_detail, name='admin_sale_detail'),
     path('management/sales/<int:sale_id>/delete/', views.admin_sale_delete, name='admin_sale_delete'),
 
+    # Foydalanuvchi parolini o‘zgartirish
+    path('management/users/<int:user_id>/change_password/', views.admin_user_change_password, name='admin_user_change_password'),
+
 ]

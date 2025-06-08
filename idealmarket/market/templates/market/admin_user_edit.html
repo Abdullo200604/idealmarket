@@ -12,4 +12,8 @@
     </label><br>
     <button type="submit" style="background: #0275d8; color: #fff; padding: 7px 18px; border-radius: 5px;">Saqlash</button>
     <a href="{% url 'admin_users' %}">Bekor qilish</a>
+    <a href="{% url 'admin_user_change_password' user_obj.id %}" class="btn btn-warning">
+    Parolni o‘zgartirish
+    </a>
+
 </form>
