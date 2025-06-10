@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Ombor
+from .models import Product, Ombor, Catagory
 
 from django.utils import timezone
 from datetime import timedelta
@@ -14,6 +14,12 @@ class ProductForm(forms.ModelForm):
         if not self.instance.pk:
             self.fields['start_date'].initial = timezone.now()
             self.fields['end_date'].initial = timezone.now() + timedelta(days=30)
+
+
+class CatagoryForm(forms.ModelForm):
+    class Meta:
+        model = Catagory
+        fields = ['name', 'desc']
 
 
 class OmborForm(forms.ModelForm):
