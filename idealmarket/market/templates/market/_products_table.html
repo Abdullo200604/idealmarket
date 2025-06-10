@@ -1,30 +1,36 @@
-<div style="max-height: 350px; overflow-y: auto;">
-    <table class="table table-bordered align-middle" style="position: relative;">
-        <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
-            <tr>
-                <th>Nom</th>
-                <th>Barcode</th>
-                <th>Ombor</th>
-                <th>Narxi</th>
-                <th>Savatga qo‘shish</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.desc }}</td>
-                <td>{{ product.barcode }}</td>
-                <td>{{ product.ombor.name }}</td>
-                <td>{{ product.s_price }}</td>
-                <td>
-                    <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form d-flex align-items-center gap-1">
-                        {% csrf_token %}
-                        <input type="number" name="quantity" value="1" class="form-control form-control-sm" style="width: 60px;">
-                        <button class="btn btn-sm btn-success">Qo‘shish</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<table class="table table-hover table-bordered align-middle mb-0">
+    <thead class="table-light">
+        <tr>
+            <th>#</th>
+            <th>Mahsulot nomi</th>
+            <th>Barcode</th>
+            <th>Narxi (so'm)</th>
+            <th>Qoldiq</th>
+            <th>Harakat</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if products %}
+        {% for product in products %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ product.desc }}</td>
+            <td>{{ product.barcode }}</td>
+            <td>{{ product.s_price }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+                <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-success btn-sm">+</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="6" class="text-center text-secondary">Mahsulotlar topilmadi</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>

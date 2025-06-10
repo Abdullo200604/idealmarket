@@ -1,95 +1,92 @@
-<!-- market/templates/market/statistics.html -->
-{% load static %}
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <title>Statistika va Hisobotlar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container py-4">
-    <h2 class="mb-4">Statistika va hisobotlar</h2>
+{% extends "base.html" %}
 
-    <div class="mb-3 d-flex gap-2">
-        <a href="{% url 'statistics_export_excel' %}" class="btn btn-success">Excelga yuklab olish</a>
-        <a href="{% url 'statistics_export_pdf' %}" class="btn btn-danger">PDFga yuklab olish</a>
-    </div>
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Statistika va Hisobotlar</h2>
 
-    <div class="row">
-        <!-- Eng ko‘p sotilgan mahsulotlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">Eng ko‘p sotilgan mahsulotlar</div>
-                <div class="card-body">
-                    <table class="table table-sm table-bordered">
-                        <tr><th>Mahsulot</th><th>Soni</th></tr>
-                        {% for p in product_stats %}
-                        <tr>
-                            <td>{{ p.product__desc }}</td>
-                            <td>{{ p.total_sales }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- Top kassirlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-success text-white">Top kassirlar</div>
-                <div class="card-body">
-                    <table class="table table-sm table-bordered">
-                        <tr><th>Kassir</th><th>Cheklar soni</th><th>Umumiy summa</th></tr>
-                        {% for k in kassir_stats %}
-                        <tr>
-                            <td>{{ k.created_by__username }}</td>
-                            <td>{{ k.total_cheks }}</td>
-                            <td>{{ k.total_sum }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- Eng faol soatlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-warning">Eng faol soatlar</div>
-                <div class="card-body">
-                    <table class="table table-sm table-bordered">
-                        <tr><th>Soat</th><th>Cheklar soni</th></tr>
-                        {% for h in hour_stats %}
-                        <tr>
-                            <td>{{ h.hour }}</td>
-                            <td>{{ h.total_cheks }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- Muddatdan o'tgan mahsulotlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-danger text-white">Muddatdan o'tgan mahsulotlar</div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% for p in expired_products %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ p.desc }} <span class="badge bg-danger">{{ p.end_date }}</span>
-                        </li>
+    <div class="row g-4">
+        <div class="col-12 col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light fw-bold">Eng ko‘p sotilgan kategoriyalar</div>
+                <div class="card-body p-2">
+                    <ul class="list-group list-group-flush">
+                        {% for stat in category_stats %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ stat.product__catagory__name|default:stat.catagory__name }}
+                                <span class="badge bg-primary rounded-pill">{{ stat.total_sales }}</span>
+                            </li>
                         {% empty %}
-                        <li class="list-group-item">Barcha mahsulotlar muddati o‘tmagan.</li>
+                            <li class="list-group-item text-secondary">Ma'lumot yo‘q</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light fw-bold">Eng ko‘p sotilgan mahsulotlar</div>
+                <div class="card-body p-2">
+                    <ul class="list-group list-group-flush">
+                        {% for stat in product_stats %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ stat.product__desc }}
+                                <span class="badge bg-success rounded-pill">{{ stat.total_sales }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-secondary">Ma'lumot yo‘q</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light fw-bold">Kassirlar bo‘yicha</div>
+                <div class="card-body p-2">
+                    <ul class="list-group list-group-flush">
+                        {% for stat in kassir_stats %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ stat.created_by__username|default:"-" }}
+                                <span class="badge bg-warning rounded-pill">{{ stat.total_cheks }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-secondary">Ma'lumot yo‘q</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light fw-bold">Kunlar bo‘yicha</div>
+                <div class="card-body p-2">
+                    <ul class="list-group list-group-flush">
+                        {% for stat in date_stats %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ stat.created_at__date }}
+                                <span class="badge bg-info rounded-pill">{{ stat.total_cheks }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-secondary">Ma'lumot yo‘q</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
     </div>
+    <div class="my-4">
+        <h5>Yaroqsiz (muddati o‘tgan) mahsulotlar:</h5>
+        {% if expired_products %}
+            <ul class="list-group list-group-flush">
+                {% for product in expired_products %}
+                    <li class="list-group-item">
+                        {{ product.desc }} ({{ product.barcode }}) - <span class="text-danger">Muddati tugagan</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="text-secondary">Yaroqsiz mahsulotlar yo‘q</div>
+        {% endif %}
+    </div>
 </div>
-<a href="{% url 'kassa' %}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Kassaga qaytish</a>
-<a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #19a590; color: white; text-decoration: none; border-radius: 5px;">Admin paneliga qaytish</a>
-
-</body>
-</html>
+{% endblock %}
