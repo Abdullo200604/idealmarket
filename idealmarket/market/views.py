@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 from django import forms
-from .forms import ProductForm, OmborForm
+from .forms import ProductForm, OmborForm, CatagoryForm
 import pandas as pd
 from django.db.models.functions import ExtractHour
 
@@ -429,13 +429,6 @@ def export_statistics_excel(request):
     return response
 
 
-#admin
-@user_passes_test(lambda u: u.is_superuser)
-def admin_management(request):
-    return render(request, 'market/admin_management.html')
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
 def admin_products(request):
     products = Product.objects.all().order_by('-id')
     categories = Catagory.objects.all()
@@ -458,23 +451,6 @@ def admin_products(request):
     return render(request, 'market/admin_products.html', context)
 
 
-@user_passes_test(lambda u: u.is_superuser)
-def admin_categories(request):
-    return render(request, 'market/admin_categories.html')
-
-@user_passes_test(lambda u: u.is_superuser)
-def admin_users(request):
-    return render(request, 'market/admin_users.html')
-
-@user_passes_test(lambda u: u.is_superuser)
-def admin_groups(request):
-    return render(request, 'market/admin_groups.html')
-
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def admin_sales(request):
-    return render(request, 'market/admin_sales.html')
 
 #admin praduct
 @user_passes_test(lambda u: u.is_superuser)
@@ -580,52 +556,6 @@ def admin_category_delete(request, pk):
         category.delete()
         return redirect('admin_categories')
     return render(request, 'market/admin_category_confirm_delete.html', {'category': category})
-
-#Ombor
-class OmborForm(forms.ModelForm):
-    class Meta:
-        model = Ombor
-        fields = ['name']
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombors(request):
-    ombors = Ombor.objects.all()
-    return render(request, 'market/admin_ombors.html', {'ombors': ombors})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombor_add(request):
-    if request.method == 'POST':
-        form = OmborForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_ombors')
-    else:
-        form = OmborForm()
-    return render(request, 'market/admin_ombor_form.html', {'form': form})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombor_edit(request, pk):
-    ombor = get_object_or_404(Ombor, pk=pk)
-    if request.method == 'POST':
-        form = OmborForm(request.POST, instance=ombor)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_ombors')
-    else:
-        form = OmborForm(instance=ombor)
-    return render(request, '', {'form': form})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombor_delete(request, pk):
-    ombor = get_object_or_404(Ombor, pk=pk)
-    if request.method == 'POST':
-        ombor.delete()
-        return redirect('admin_ombors')
-    return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})
 
 #Users
 @user_passes_test(lambda u: u.is_superuser)
