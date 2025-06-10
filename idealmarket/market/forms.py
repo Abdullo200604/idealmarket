@@ -1,8 +1,9 @@
 from django import forms
-from .models import Product, Ombor
-
 from django.utils import timezone
 from datetime import timedelta
+
+from .models import Product, Ombor, Catagory
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -20,3 +21,9 @@ class OmborForm(forms.ModelForm):
     class Meta:
         model = Ombor
         fields = ['name']
+
+
+class CatagoryForm(forms.ModelForm):
+    class Meta:
+        model = Catagory
+        fields = ['name', 'desc']
