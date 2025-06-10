@@ -20,16 +20,18 @@ class Product(models.Model):
     ombor = models.ForeignKey(Ombor, on_delete=models.CASCADE, related_name='products')
     barcode = models.CharField(max_length=100, unique=True)
     desc = models.TextField(blank=True, null=True)
-    r_price = models.DecimalField(max_digits=12, decimal_places=2)
-    s_price = models.DecimalField(max_digits=12, decimal_places=2)
+    r_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Olish narxi")
+    s_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Sotish narxi")
     stock = models.IntegerField(default=0)
-    # Muddati uchun
-    start_date = models.DateField(default=timezone.now)     # Mahsulot sotuvga chiqqan sana
-    end_date = models.DateField(blank=True, null=True)      # Muddati tugash sanasi (ixtiyoriy)
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField(blank=True, null=True)
+    is_active = models.BooleanField(default=True, verbose_name="Faol (arxiv emas)")
 
     @property
-    def is_active(self):
+    def is_available(self):
         now = timezone.now().date()
+        if not self.is_active:
+            return False
         if self.start_date and self.start_date > now:
             return False
         if self.end_date and self.end_date < now:

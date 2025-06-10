@@ -74,6 +74,7 @@ def kassa(request):
     query = request.GET.get('q', '')
     now = timezone.now()
     products = Product.objects.filter(
+        is_active=True,                           # Faqat faol mahsulotlar!
         start_date__lte=now
     ).filter(
         Q(end_date__isnull=True) | Q(end_date__gte=now)
@@ -81,10 +82,12 @@ def kassa(request):
     if query:
         products = products.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
 
+    # AJAX
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         products_html = render_to_string('market/_products_table.html', {'products': products})
         return JsonResponse({'products_html': products_html})
 
+    # Savat hisob-kitobi...
     cart = request.session.get('cart', {})
     cart_items = []
     total = 0
@@ -103,6 +106,7 @@ def kassa(request):
         'total': total,
         'query': query,
     })
+
 
 @login_required
 def cart_add(request, product_id):
@@ -437,15 +441,22 @@ def admin_products(request):
     categories = Catagory.objects.all()
     query = request.GET.get('q', '')
     cat_id = request.GET.get('cat')
+    show_all = request.GET.get('show_all', '')
+
+    # Faqat faol mahsulotlarni ko'rsatish (superuser bo'lmasa yoki show_all bo'lmasa)
+    if not show_all:
+        products = products.filter(is_active=True)
     if query:
         products = products.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
     if cat_id:
         products = products.filter(catagory_id=cat_id)
+
     context = {
         'products': products,
         'categories': categories
     }
     return render(request, 'market/admin_products.html', context)
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def admin_categories(request):
@@ -505,18 +516,30 @@ def admin_product_delete(request, pk):
 @require_POST
 def admin_product_bulk_delete(request):
     ids = request.POST.getlist('selected_products')
-    if ids:
-        Product.objects.filter(id__in=ids).delete()
-        messages.success(request, f"{len(ids)} ta mahsulot o‘chirildi!")
-    else:
+    if not ids:
         messages.warning(request, "Hech qanaqa mahsulot tanlanmadi.")
+        return redirect('admin_products')
+
+    products = Product.objects.filter(id__in=ids)
+    deleted_count = 0
+    archived_count = 0
+
+    for product in products:
+        if SaleItem.objects.filter(product=product).exists():
+            product.is_active = False
+            product.save()
+            archived_count += 1
+        else:
+            product.delete()
+            deleted_count += 1
+
+    if deleted_count > 0:
+        messages.success(request, f"{deleted_count} ta mahsulot to‘liq o‘chirildi!")
+    if archived_count > 0:
+        messages.warning(request, f"{archived_count} ta mahsulot arxivlandi (faolsizlantirildi), chunki sotuvlarda ishlatilgan.")
+
     return redirect('admin_products')
 
-    # kategoriyalar
-class CatagoryForm(forms.ModelForm):
-    class Meta:
-        model = Catagory
-        fields = ['name', 'desc']
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -798,7 +821,7 @@ def management_product_import(request):
 
 def management_product_export(request):
     import pandas as pd
-    products = Product.objects.all().values(
+    products = Product.objects.filter(is_active=True).values(
         'id', 'catagory_id', 'ombor_id', 'barcode', 'desc', 'r_price', 's_price', 'stock', 'start_date', 'end_date'
     )
     df = pd.DataFrame(list(products))
@@ -806,6 +829,7 @@ def management_product_export(request):
     response['Content-Disposition'] = 'attachment; filename="products_export.json"'
     response.write(df.to_json(orient='records'))
     return response
+
 
 def management_category_import(request):
     if request.method == "POST":
