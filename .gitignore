@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Test coverage
+htmlcov/
+.coverage
+
+# Node (agar frontend ham ishlatilsa)
+node_modules/
+npm-debug.log*
+
+# Excel, CSV, json, xls
+*.csv
+*.xls
+*.xlsx
+*.json
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# Backup files
+*.bak
+*.tmp
+*~
