@@ -4,9 +4,10 @@
             <th>#</th>
             <th>Mahsulot nomi</th>
             <th>Barcode</th>
+            <th>Ombor</th>
             <th>Narxi (so'm)</th>
             <th>Qoldiq</th>
-            <th>Harakat</th>
+            <th>Savatga qo‘shish</th>
         </tr>
     </thead>
     <tbody>
@@ -16,20 +17,21 @@
             <td>{{ forloop.counter }}</td>
             <td>{{ product.desc }}</td>
             <td>{{ product.barcode }}</td>
+            <td>{{ product.ombor.name }}</td>
             <td>{{ product.s_price }}</td>
             <td>{{ product.stock }}</td>
             <td>
                 <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form d-inline">
                     {% csrf_token %}
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="btn btn-success btn-sm">+</button>
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control d-inline-block" style="width:60px;">
+                    <button type="submit" class="btn btn-success btn-sm ms-1">Qo‘shish</button>
                 </form>
             </td>
         </tr>
         {% endfor %}
     {% else %}
         <tr>
-            <td colspan="6" class="text-center text-secondary">Mahsulotlar topilmadi</td>
+            <td colspan="7" class="text-center text-secondary">Mahsulotlar topilmadi</td>
         </tr>
     {% endif %}
     </tbody>

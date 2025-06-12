@@ -6,31 +6,21 @@ from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.db.models import Q, Count, Sum
 from django.views.decorators.http import require_POST
-from .models import Product, Sale, SaleItem
 from django.contrib import messages
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-
-from django import forms
-from .forms import ProductForm, OmborForm, CatagoryForm
-import pandas as pd
 from django.db.models.functions import ExtractHour
-
-#Models
-from .models import Ombor
-from .models import Catagory
-from .models import Product
-
+from .models import Product, Sale, SaleItem, Ombor, Catagory
+from .forms import ProductForm, OmborForm, CatagoryForm
 from django.contrib.auth.forms import AdminPasswordChangeForm
-
-
-
-def home(request):
-    return render(request, "index.html")
+import pandas as pd
 
 # ROLLARNI ANIQLASH
 def is_kassir_or_admin(user):
     return user.is_superuser or user.groups.filter(name='Kassir').exists()
+
+def home(request):
+    return render(request, "index.html")
 
 @user_passes_test(lambda u: u.is_superuser)
 def admin_user_change_password(request, user_id):
