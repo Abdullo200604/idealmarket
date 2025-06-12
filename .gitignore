@@ -47,3 +47,5 @@ env/
 *.bak
 *.tmp
 *~
+# Django db
+*.sqlite3

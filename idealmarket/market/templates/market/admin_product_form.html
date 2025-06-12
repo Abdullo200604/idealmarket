@@ -1,38 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Yangi mahsulot qo‘shish</title>
-    <style>
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .btn-save {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn-back {
-            background-color: #a59219;
-            color: white;
-            margin-left: 10px;
-        }
-    </style>
-</head>
-<body>
-    <h2>Yangi mahsulot qo‘shish</h2>
+{% extends "market/base.html" %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-save">Saqlash</button>
-        <a href="{% url 'admin_management' %}" class="btn btn-back">⬅️ Orqaga</a>
-    </form>
-</body>
-</html>
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-7 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">
+                        {% if product %}Mahsulotni tahrirlash{% else %}Yangi mahsulot qo‘shish{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">Saqlash</button>
+                            <a href="{% url 'admin_products' %}" class="btn btn-outline-secondary">Bekor qilish</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

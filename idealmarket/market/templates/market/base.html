@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}IdealMarket{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- jQuery (AJAX uchun) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% block head %}{% endblock %}
+    <style>
+        body { background: #f9fafc; }
+        .main-card { margin: 35px auto; padding: 32px; max-width: 950px; background: #fff; border-radius: 18px; box-shadow: 0 4px 20px #ececec; }
+        .logout-button { position: absolute; top: 18px; right: 32px; background: #dc3545; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; text-decoration: none;}
+        .logout-button:hover { background: #c82333;}
+        .table-responsive { max-height: 360px; }
+        @media (max-width: 600px) {
+            .main-card { padding: 10px; }
+            .container, .container-fluid { padding-left: 4px; padding-right: 4px; }
+        }
+
+        /* Siz bergan yangi media query */
+        @media (max-width: 600px) {
+            .main-card {
+                padding: 8px !important;
+                border-radius: 14px !important;
+                box-shadow: 0 2px 10px #e0e0e0;
+            }
+            .btn, .form-control {
+                font-size: 1rem !important;
+            }
+            .list-group-item {
+                font-size: 1rem;
+                padding: 0.6rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
