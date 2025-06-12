@@ -1,30 +1,35 @@
-<h2>Sotuvlar ro‘yxati</h2>
-<table border="1" cellpadding="7" cellspacing="0">
-    <tr>
-        <th>ID</th>
-        <th>Sana</th>
-        <th>Kassir</th>
-        <th>Summa</th>
-        <th>Amallar</th>
-    </tr>
-    {% for s in sales %}
-    <tr>
-        <td>{{ s.id }}</td>
-        <td>{{ s.created_at }}</td>
-        {% if s.created_by %}
-            {{ s.created_by.username }}
-        {% else %}
-            —
-        {% endif %}
-
-        <td>{{ s.total_sum }}</td>
-        <td>
-            <a href="{% url 'admin_sale_detail' s.id %}">Ko‘rish</a>
-            <a href="{% url 'admin_sale_delete' s.id %}">O‘chirish</a>
-        </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="5">Sotuvlar yo‘q.</td></tr>
-    {% endfor %}
-</table>
-<a href="{% url 'admin_management' %}">⬅️ Orqaga</a>
+{% extends 'base.html' %}
+{% block title %}Sotuvlar{% endblock %}
+{% block content %}
+<h2 class="mb-3">Sotuvlar</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Sana</th>
+                <th>Kassir</th>
+                <th>Summa</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for s in sales %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ s.created_at }}</td>
+                <td>{% if s.created_by %}{{ s.created_by.username }}{% else %}—{% endif %}</td>
+                <td>{{ s.total_sum }}</td>
+                <td class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'admin_sale_detail' s.id %}" class="btn btn-sm btn-outline-primary">Ko‘rish</a>
+                    <a href="{% url 'admin_sale_delete' s.id %}" class="btn btn-sm btn-outline-danger">O‘chirish</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="text-center">Sotuvlar yo‘q.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'admin_management' %}" class="btn btn-secondary btn-sm mt-2">⬅️ Orqaga</a>
+{% endblock %}

@@ -1,24 +1,14 @@
-<h2>Kategoriyalar</h2>
-<a href="{% url 'admin_category_add' %}" style="margin-bottom:10px; display:inline-block; background:#198754; color:white; padding:7px 14px; border-radius:5px; text-decoration:none;">+ Yangi kategoriya qo‘shish</a>
-<table border="1" cellpadding="7" cellspacing="0">
-    <tr>
-        <th>ID</th>
-        <th>Nomi</th>
-        <th>Izoh</th>
-        <th>Amallar</th>
-    </tr>
-    {% for cat in categories %}
-    <tr>
-        <td>{{ cat.id }}</td>
-        <td>{{ cat.name }}</td>
-        <td>{{ cat.desc }}</td>
-        <td>
-            <a href="{% url 'admin_category_edit' cat.id %}" style="background:#0275d8; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">✏️ Tahrirlash</a>
-            <a href="{% url 'admin_category_delete' cat.id %}" style="background:#d9534f; color:white; padding:6px 12px; border-radius:5px; text-decoration:none; margin-left:8px;">🗑️ O‘chirish</a>
-        </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="4">Kategoriyalar yo‘q.</td></tr>
-    {% endfor %}
-</table>
-<a href="{% url 'admin_management' %}" style="padding:10px 20px; background-color:#a59219; color:white; text-decoration:none; border-radius:5px;">⬅️ Orqaga</a>
+{% extends 'base.html' %}
+{% block title %}Kategoriya o‘chirish{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <p>Rostdan ham "{{ category.name }}" kategoriyasini o‘chirmoqchimisiz?</p>
+        <form method="post" class="d-grid gap-2 d-md-flex">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+            <a href="{% url 'admin_categories' %}" class="btn btn-secondary btn-sm ms-md-auto">Bekor</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

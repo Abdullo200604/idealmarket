@@ -1,20 +1,30 @@
-<h2>Guruhlar</h2>
-<a href="{% url 'admin_group_add' %}" style="background:#198754;color:#fff;padding:8px 14px;border-radius:5px;text-decoration:none;">+ Yangi guruh</a>
-<table border="1" cellpadding="7" cellspacing="0">
-    <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Amallar</th>
-    </tr>
-    {% for group in groups %}
-    <tr>
-        <td>{{ group.id }}</td>
-        <td>{{ group.name }}</td>
-        <td>
-            <a href="{% url 'admin_group_edit' group.id %}" style="background-color: #0275d8; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none;">✏️ Tahrirlash</a>
-            <a href="{% url 'admin_group_delete' group.id %}" style="background-color: #d9534f; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; margin-left: 8px;">🗑️ O‘chirish</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-<a href="{% url 'admin_management' %}">⬅️ Orqaga</a>
+{% extends 'base.html' %}
+{% block title %}Guruhlar{% endblock %}
+{% block content %}
+<h2 class="mb-3">Guruhlar</h2>
+<a href="{% url 'admin_group_add' %}" class="btn btn-success btn-sm mb-2 w-100 w-md-auto">+ Qo‘shish</a>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for group in groups %}
+            <tr>
+                <td>{{ group.id }}</td>
+                <td>{{ group.name }}</td>
+                <td class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'admin_group_edit' group.id %}" class="btn btn-sm btn-outline-primary">Tahrirlash</a>
+                    <a href="{% url 'admin_group_delete' group.id %}" class="btn btn-sm btn-outline-danger">O‘chirish</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'admin_management' %}" class="btn btn-secondary btn-sm mt-2">⬅️ Orqaga</a>
+{% endblock %}

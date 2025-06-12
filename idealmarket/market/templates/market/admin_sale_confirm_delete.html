@@ -1,7 +1,14 @@
-<h2>Chek №{{ sale.id }} o‘chirish</h2>
-<p>Rostdan ham ushbu sotuvni o‘chirmoqchimisiz?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" style="background-color: #d9534f; color: white;">O‘chirish</button>
-    <a href="{% url 'admin_sales' %}">Bekor qilish</a>
-</form>
+{% extends 'base.html' %}
+{% block title %}Chekni o‘chirish{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <p>Rostdan ham chek №{{ sale.id }} ni o‘chirmoqchimisiz?</p>
+        <form method="post" class="d-grid gap-2 d-md-flex">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+            <a href="{% url 'admin_sales' %}" class="btn btn-secondary btn-sm ms-md-auto">Bekor</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

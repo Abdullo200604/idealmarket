@@ -1,70 +1,50 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chek tafsiloti</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-</head>
-<body>
-<h2>Chek №{{ sale.id }} tafsiloti</h2>
-<p>
-    Sana: {{ sale.created_at|date:"Y-m-d H:i" }}<br>
-    Chek qilgan foydalanuvchi:
-    {% if sale.created_by %}
-        <b>{{ sale.created_by.username }}</b>
-    {% else %}
-        <span style="color:gray;">No name</span>
-    {% endif %}
-</p>
-<button onclick="generatePDF()">PDFga chiqarish</button>
-<button onclick="window.print()">Printerga chiqarish</button>
-<table border="1">
-    <tr>
-        <th>Mahsulot</th>
-        <th>Miqdor</th>
-        <th>Narx</th>
-        <th>Jami</th>
-    </tr>
-    {% for item in items %}
-    <tr>
-        <td>{{ item.product.desc }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.price|floatformat:2 }}</td>
-        <td>{{ item.quantity }} x {{ item.price|floatformat:2 }} = {{ item.quantity|floatformat:0|add:""|floatformat:0|floatformat:2|floatformat:0|default:"" }}</td>
-    </tr>
-    {% endfor %}
-</table>
-<p><b>Umumiy summa: {{ total_sum }}</b></p>
-<a href="{% url 'sales_list' %}">Orqaga</a>
-
+{% extends 'base.html' %}
+{% block title %}Chek {{ sale.id }}{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <h4 class="card-title">Chek №{{ sale.id }}</h4>
+        <p class="mb-2">Sana: {{ sale.created_at|date:"Y-m-d H:i" }}</p>
+        <p>Chek qilgan: {% if sale.created_by %}{{ sale.created_by.username }}{% else %}<span class="text-muted">No name</span>{% endif %}</p>
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mahsulot</th>
+                        <th>Miqdor</th>
+                        <th>Narx</th>
+                        <th>Jami</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.desc }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.price|floatformat:2 }}</td>
+                        <td>{{ item.quantity|floatformat:0 }} × {{ item.price|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <h5 class="mt-3">Umumiy summa: {{ total_sum }}</h5>
+        <div class="d-grid gap-2 d-md-flex mt-3">
+            <button onclick="generatePDF()" class="btn btn-outline-secondary btn-sm">PDF</button>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">Print</button>
+            <a href="{% url 'sales_list' %}" class="btn btn-primary btn-sm ms-md-auto">Orqaga</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 <script>
-function generatePDF() {
-    var body = [
-        ['Mahsulot', 'Miqdor', 'Narx', 'Jami']
-        {% for item in items %}
-        ,[
-            '{{ item.product.desc|escapejs }}',
-            '{{ item.quantity }}',
-            '{{ item.price|floatformat:2 }}',
-            '{{ item.quantity }} x {{ item.price|floatformat:2 }} = {{ item.quantity|floatformat:0|add:""|floatformat:0|floatformat:2|floatformat:0|default:"" }}'
-        ]
-        {% endfor %}
-        ,['', '', 'Umumiy summa:', '{{ total_sum|floatformat:2 }}']
-    ];
-    var docDefinition = {
-        content: [
-            { text: 'Chek №{{ sale.id }}', fontSize: 18, bold: true, margin: [0,0,0,10] },
-            { text: 'Sana: {{ sale.created_at|date:"Y-m-d H:i" }}', margin: [0,0,0,10] },
-            {
-                table: {
-                    headerRows: 1,
-                    body: body
-                }
-            }
-        ]
-    };
+function generatePDF(){
+    var body = [ ['Mahsulot','Miqdor','Narx','Jami'] {% for item in items %}, ['{{ item.product.desc|escapejs }}','{{ item.quantity }}','{{ item.price|floatformat:2 }}','{{ item.quantity }} x {{ item.price|floatformat:2 }}'] {% endfor %}, ['', '', 'Umumiy summa:', '{{ total_sum|floatformat:2 }}'] ];
+    var docDefinition = {content:[{text:'Chek №{{ sale.id }}', style:'header', alignment:'center'}, {table:{headerRows:1, body:body}}]};
     pdfMake.createPdf(docDefinition).download('Chek_{{ sale.id }}.pdf');
 }
 </script>
-</body>
-</html>
+{% endblock %}
