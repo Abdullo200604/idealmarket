@@ -1,54 +1,49 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <title>Kassa oynasi</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-    <style>
-        body { background: #f9fafc; }
-        .main-card { margin: 35px auto; padding: 32px; max-width: 950px; background: #fff; border-radius: 18px; box-shadow: 0 4px 20px #ececec; }
-        .logout-button { position: absolute; top: 18px; right: 32px; background: #dc3545; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; text-decoration: none;}
-        .logout-button:hover { background: #c82333;}
-        .products-scroll-area { max-height: 280px; overflow-y: auto; }
-        .sticky-table thead th { position: sticky; top: 0; background: #f5f5f5; z-index: 2; }
-        .cart-message { min-height: 30px; margin-top: 8px; }
-    </style>
-</head>
-<body>
-
-<a href="{% url 'login' %}" class="logout-button">Chiqish</a>
-
-<div class="main-card">
-    <h2>Kassa oynasi</h2>
-    <input type="text" id="search-input" class="form-control mb-3" placeholder="Qidiruv (nom yoki barcode)" autocomplete="off" style="max-width:350px;">
-
-    <!-- Mahsulotlar jadvali scroll bilan -->
-    <div class="products-scroll-area mb-3">
-        <div id="products-table">
-            {% include "market/_products_table.html" %}
+{% extends 'base.html' %}
+{% block title %}Kassa oynasi{% endblock %}
+{% block extra_css %}
+<style>
+.products-scroll-area{max-height:280px;overflow-y:auto;}
+.cart-scroll-area{max-height:220px;overflow-y:auto;}
+.sticky-table thead th{position:sticky;top:0;background:#f5f5f5;z-index:2;}
+.cart-message{min-height:30px;margin-top:8px;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <h2 class="mb-3">Kassa oynasi</h2>
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <input type="text" id="search-input" class="form-control mb-2" placeholder="Qidiruv (nom yoki barcode)" autocomplete="off">
+                <div class="products-scroll-area sticky-table">
+                    <div id="products-table">
+                        {% include "market/_products_table.html" %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6" id="cart-area">
+                {% include "market/_cart_partial.html" %}
+            </div>
+        </div>
+        <div id="cart-message" class="cart-message"></div>
+        <div class="d-grid gap-2 d-md-flex mt-3">
+            <button type="button" onclick="generatePDF()" class="btn btn-outline-info btn-sm">Chekni PDFga saqlash</button>
+            <a href="{% url 'sales_list' %}" class="btn btn-outline-secondary btn-sm">Cheklar tarixi</a>
+            <a href="{% url 'statistics' %}" class="btn btn-outline-primary btn-sm">Statistika va hisobotlar</a>
         </div>
     </div>
-    <hr>
-    <div id="cart-area">
-        {% include "market/_cart_partial.html" %}
-    </div>
-    <div id="cart-message" class="cart-message"></div>
-    <button type="button" onclick="generatePDF()" class="btn btn-outline-info mt-3">Chekni PDFga saqlash</button>
-    <a href="{% url 'sales_list' %}" class="btn btn-outline-secondary mt-3">Cheklar tarixi</a>
-    <a href="{% url 'statistics' %}" class="btn btn-outline-primary mt-3 ms-2">Statistika va hisobotlar</a>
 </div>
-
+{% endblock %}
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 <script>
-$(document).ready(function(){
-    // Mahsulotlar qidiruvi
+$(function(){
     $('#search-input').on('input', function(){
-        var query = $(this).val();
         $.ajax({
             url: "{% url 'kassa' %}",
-            data: {'q': query},
+            data: {q: this.value},
             headers: {'X-Requested-With': 'XMLHttpRequest'},
             success: function(data){
                 $('#products-table').html(data.products_html);
@@ -56,7 +51,6 @@ $(document).ready(function(){
         });
     });
 
-    // Savat harakatlari (AJAX)
     $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form, .update-cart', function(e){
         e.preventDefault();
         var $form = $(this);
@@ -67,57 +61,27 @@ $(document).ready(function(){
             headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
             success: function(data){
                 $('#cart-area').replaceWith(data.cart_html);
-                $('#cart-message').html(data.message ? '<b style="color:green;">' + data.message + '</b>' : '');
+                $('#cart-message').html(data.message ? '<b class="text-success">'+data.message+'</b>' : '');
             },
             error: function(xhr){
                 let msg = 'Xatolik yuz berdi!';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
-                $('#cart-message').html('<b style="color:red;">' + msg + '</b>');
+                if(xhr.responseJSON && xhr.responseJSON.message){ msg = xhr.responseJSON.message; }
+                $('#cart-message').html('<b class="text-danger">'+msg+'</b>');
             }
         });
     });
 
-    // Savatda qidiruv (agar kerak bo‘lsa)
     $(document).on('input', '#cart-search', function(){
         var value = $(this).val().toLowerCase();
-        $('.cart-item-row').filter(function() {
+        $('.cart-item-row').filter(function(){
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
         });
     });
 });
-
-// PDF (Chek)
-function generatePDF() {
-    var items = [
-        ['Mahsulot', 'Miqdori', 'Jami'],
-        {% for item in cart_items %}
-        [
-            "{{ item.product.desc|escapejs }}",
-            "{{ item.quantity }}",
-            "{{ item.item_total }}"
-        ]{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ];
-    var docDefinition = {
-        content: [
-            { text: 'Chek', style: 'header', alignment: 'center' },
-            {
-                table: {
-                    headerRows: 1,
-                    body: items
-                }
-            },
-            { text: 'Umumiy summa: {{ total }}', style: 'total', margin: [0, 10, 0, 0] }
-        ],
-        styles: {
-            header: { fontSize: 16, bold: true, margin: [0, 0, 0, 10] },
-            total: { fontSize: 14, bold: true }
-        }
-    };
+function generatePDF(){
+    var items = [['Mahsulot','Miqdori','Jami']{% for item in cart_items %},['{{ item.product.desc|escapejs }}','{{ item.quantity }}','{{ item.item_total }}']{% endfor %}];
+    var docDefinition = {content:[{text:'Chek',style:'header',alignment:'center'},{table:{headerRows:1,body:items}},{text:'Umumiy summa: {{ total }}',style:'total',margin:[0,10,0,0]}],styles:{header:{fontSize:16,bold:true,margin:[0,0,0,10]},total:{fontSize:14,bold:true}}};
     pdfMake.createPdf(docDefinition).download('check.pdf');
 }
 </script>
-</body>
-</html>
+{% endblock %}

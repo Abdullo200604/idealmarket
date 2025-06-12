@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Kirish taqiqlangan</title>
-</head>
-<body>
-    <p style="color:red; font-weight:bold; font-size:22px;">{{ message }}</p>
-<h2>Mahsulotlarni boshqarish</h2>
-<p>Bu yerda mahsulotlar ro‘yxati, qo‘shish, tahrirlash va o‘chirish funksiyalari bo‘ladi.</p>
-<a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #a59219; color: white; text-decoration: none; border-radius: 5px;">⬅️ Orqaga</a>
-
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Ruxsat yo'q{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card main-card text-center">
+            <div class="card-body">
+                <p class="text-danger fw-bold fs-5">{{ message }}</p>
+                <a href="{% url 'admin_management' %}" class="btn btn-secondary mt-2">⬅️ Orqaga</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
