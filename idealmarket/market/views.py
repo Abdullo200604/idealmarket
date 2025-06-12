@@ -43,7 +43,6 @@ def admin_user_change_password(request, user_id):
 def dashboard_redirect(request):
     user = request.user
     if user.is_superuser:
-        # Eng to'g'ri variant: url nomi orqali redirect
         return redirect('admin_management')
     elif user.groups.filter(name='Kassir').exists():
         return redirect('kassa')
