@@ -1,5 +1,5 @@
 <div class="card" id="cart-area">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
         <span class="fw-bold">Savat</span>
         <form method="post" action="{% url 'cart_clear' %}" id="cart-clear-form" class="d-inline">
             {% csrf_token %}
@@ -9,7 +9,7 @@
     <div class="card-body p-2">
         {% if cart_items %}
             <div class="table-responsive">
-                <table class="table table-sm align-middle mb-2">
+                <table class="table table-sm align-middle mb-2 small">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -24,7 +24,7 @@
                     {% for item in cart_items %}
                         <tr class="cart-item-row">
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ item.product.desc }}</td>
+                            <td style="min-width:110px">{{ item.product.desc }}</td>
                             <td class="text-center">
                                 <form method="post" action="{% url 'cart_update' item.product.id %}" class="update-cart d-inline">
                                     {% csrf_token %}
@@ -60,7 +60,7 @@
             </div>
             <form method="post" action="{% url 'cart_checkout' %}" id="cart-checkout-form" class="mt-2 text-end">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-success">Chekni rasmiylashtirish</button>
+                <button type="submit" class="btn btn-success w-100 w-md-auto">Chekni rasmiylashtirish</button>
             </form>
         {% else %}
             <div class="text-center text-secondary py-2">Savat bo‘sh</div>
