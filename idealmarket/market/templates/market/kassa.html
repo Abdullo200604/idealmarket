@@ -51,6 +51,26 @@ $(function(){
         });
     });
 
+    $('#search-input').on('keydown', function(e){
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            var query = $(this).val();
+            $.ajax({
+                url: "{% url 'kassa' %}",
+                data: {q: query},
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                success: function(data){
+                    $('#products-table').html(data.products_html);
+                    var $first = $('.cart-add-form').first();
+                    if($first.length){
+                        $first.find('input[name="quantity"]').val(1);
+                        $first.submit();
+                    }
+                }
+            });
+        }
+    });
+
     $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form, .update-cart', function(e){
         e.preventDefault();
         var $form = $(this);

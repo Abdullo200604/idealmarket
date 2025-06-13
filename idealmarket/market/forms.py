@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Ombor
+from .models import Product, Ombor, Catagory
 
 from django.utils import timezone
 from datetime import timedelta
@@ -19,3 +19,12 @@ class OmborForm(forms.ModelForm):
     class Meta:
         model = Ombor
         fields = ['name']
+
+class CatagoryForm(forms.ModelForm):
+    class Meta:
+        model = Catagory
+        fields = ['name', 'desc']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'desc': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }

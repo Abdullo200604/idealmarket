@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 from django import forms
-from .forms import ProductForm, OmborForm
+from .forms import ProductForm, OmborForm, CatagoryForm
 import pandas as pd
 from django.db.models.functions import ExtractHour
 
