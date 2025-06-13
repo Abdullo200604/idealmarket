@@ -1,0 +1,10 @@
+Django>=5.0
+djangorestframework
+psycopg2-binary
+pillow
+openpyxl
+django-import-export
+reportlab
+pandas
+# Termina command
+# pip install -r requirements.txt
