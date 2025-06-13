@@ -3,61 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Ideal Market{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% block head %}{% endblock %}
     <style>
+        body { background: #f9fafc; }
         .main-card {
+            margin: 40px auto;
+            padding: 32px;
             max-width: 900px;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: .5rem;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px #ececec;
         }
+        @media (max-width: 700px) { .main-card { padding: 8px; } }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+        }
+        .topbar .btn { margin-left: 12px; }
         @media (max-width: 600px) {
-            .main-card {
-                box-shadow: none !important;
-                border-radius: 8px !important;
-                padding: 8px !important;
-                margin: 0 !important;
-                max-width: 100vw !important;
-            }
-            .container, .container-fluid {
-                padding-left: 2px !important;
-                padding-right: 2px !important;
-            }
-            .table-responsive {
-                max-width: 100vw !important;
-                overflow-x: auto;
-            }
-            table, thead, tbody, th, td, tr {
-                font-size: 13px !important;
-                white-space: nowrap;
-            }
-            .btn, button {
-                min-width: 44px !important;
-                min-height: 44px !important;
-                font-size: 14px !important;
-                padding: 8px 12px !important;
-            }
-            .list-group-item, .form-control {
-                font-size: 15px !important;
-            }
+            .container, .container-fluid { padding-left: 2px !important; padding-right: 2px !important; }
+            .table-responsive { max-width: 100vw !important; overflow-x: auto; }
+            table, thead, tbody, th, td, tr { font-size: 13px !important; white-space: nowrap; }
+            .btn, button { min-width: 44px !important; min-height: 44px !important; font-size: 14px !important; padding: 8px 12px !important; }
+            .list-group-item, .form-control { font-size: 15px !important; }
         }
     </style>
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-3 sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">Ideal Market</a>
-        <div class="d-flex ms-auto gap-2">
-            <a href="{% url 'home' %}" class="btn btn-outline-primary btn-sm">Bosh sahifa</a>
-            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Chiqish</a>
+    <div class="topbar bg-white border-bottom sticky-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="fw-bold fs-4">Ideal Market</div>
+            <div>
+                <a href="{% url 'home' %}" class="btn btn-outline-primary">Bosh sahifa</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="btn btn-danger">Chiqish</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-success">Kirish</a>
+                {% endif %}
+            </div>
         </div>
     </div>
-</nav>
-<div class="container my-4">
     {% block content %}{% endblock %}
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-{% block extra_js %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -26,7 +26,7 @@ from django.contrib.auth.forms import AdminPasswordChangeForm
 
 
 def home(request):
-    return render(request, "index.html")
+    return render(request, "market/home.html")
 
 # ROLLARNI ANIQLASH
 def is_kassir_or_admin(user):
