@@ -13,12 +13,14 @@
                 <div class="card h-100">
                     <div class="card-header bg-primary text-white">Eng ko‘p sotilgan mahsulotlar</div>
                     <div class="card-body p-2">
+                        <div class="table-responsive">
                         <table class="table table-sm table-bordered mb-0">
                             <tr><th>Mahsulot</th><th>Soni</th></tr>
                             {% for p in product_stats %}
                             <tr><td>{{ p.product__desc }}</td><td>{{ p.total_sales }}</td></tr>
                             {% endfor %}
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -26,12 +28,14 @@
                 <div class="card h-100">
                     <div class="card-header bg-success text-white">Top kassirlar</div>
                     <div class="card-body p-2">
+                        <div class="table-responsive">
                         <table class="table table-sm table-bordered mb-0">
                             <tr><th>Kassir</th><th>Cheklar soni</th><th>Umumiy summa</th></tr>
                             {% for k in kassir_stats %}
                             <tr><td>{{ k.created_by__username }}</td><td>{{ k.total_cheks }}</td><td>{{ k.total_sum }}</td></tr>
                             {% endfor %}
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -39,12 +43,14 @@
                 <div class="card h-100">
                     <div class="card-header bg-warning">Eng faol soatlar</div>
                     <div class="card-body p-2">
+                        <div class="table-responsive">
                         <table class="table table-sm table-bordered mb-0">
                             <tr><th>Soat</th><th>Cheklar soni</th></tr>
                             {% for h in hour_stats %}
                             <tr><td>{{ h.hour }}</td><td>{{ h.total_cheks }}</td></tr>
                             {% endfor %}
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
