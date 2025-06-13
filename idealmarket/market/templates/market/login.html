@@ -1,22 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Tizimga kirish</title>
-    <style>
-        body { font-family: Arial; background: #f7f7f7; }
-        form { background: #fff; max-width: 350px; margin: 100px auto; padding: 32px; border-radius: 10px; box-shadow: 0 4px 12px #eee; }
-        input, button { margin-top: 10px; padding: 8px; width: 100%; }
-    </style>
-</head>
-<body>
-<form method="post">
-    <h2>Tizimga kirish</h2>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Kirish</button>
-    {% if form.errors %}
-        <p style="color:red;">Login yoki parol noto‘g‘ri!</p>
-    {% endif %}
-</form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Tizimga kirish{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <div class="card main-card">
+            <div class="card-body">
+                <h2 class="text-center mb-3">Tizimga kirish</h2>
+                <form method="post" class="d-grid gap-2">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100">Kirish</button>
+                </form>
+                {% if form.errors %}
+                    <p class="text-danger mt-2 text-center">Login yoki parol noto‘g‘ri!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

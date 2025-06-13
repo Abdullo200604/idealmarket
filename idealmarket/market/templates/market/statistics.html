@@ -1,95 +1,74 @@
-<!-- market/templates/market/statistics.html -->
-{% load static %}
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <title>Statistika va Hisobotlar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container py-4">
-    <h2 class="mb-4">Statistika va hisobotlar</h2>
-
-    <div class="mb-3 d-flex gap-2">
-        <a href="{% url 'statistics_export_excel' %}" class="btn btn-success">Excelga yuklab olish</a>
-        <a href="{% url 'statistics_export_pdf' %}" class="btn btn-danger">PDFga yuklab olish</a>
-    </div>
-
-    <div class="row">
-        <!-- Eng ko‘p sotilgan mahsulotlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">Eng ko‘p sotilgan mahsulotlar</div>
-                <div class="card-body">
-                    <table class="table table-sm table-bordered">
-                        <tr><th>Mahsulot</th><th>Soni</th></tr>
-                        {% for p in product_stats %}
-                        <tr>
-                            <td>{{ p.product__desc }}</td>
-                            <td>{{ p.total_sales }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
+{% extends 'base.html' %}
+{% block title %}Statistika{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <h2 class="mb-3">Statistika va hisobotlar</h2>
+        <div class="d-grid gap-2 d-md-flex mb-3">
+            <a href="{% url 'statistics_export_excel' %}" class="btn btn-success btn-sm">Excelga yuklab olish</a>
+            <a href="{% url 'statistics_export_pdf' %}" class="btn btn-danger btn-sm">PDFga yuklab olish</a>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">Eng ko‘p sotilgan mahsulotlar</div>
+                    <div class="card-body p-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <tr><th>Mahsulot</th><th>Soni</th></tr>
+                            {% for p in product_stats %}
+                            <tr><td>{{ p.product__desc }}</td><td>{{ p.total_sales }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">Top kassirlar</div>
+                    <div class="card-body p-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <tr><th>Kassir</th><th>Cheklar soni</th><th>Umumiy summa</th></tr>
+                            {% for k in kassir_stats %}
+                            <tr><td>{{ k.created_by__username }}</td><td>{{ k.total_cheks }}</td><td>{{ k.total_sum }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-warning">Eng faol soatlar</div>
+                    <div class="card-body p-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <tr><th>Soat</th><th>Cheklar soni</th></tr>
+                            {% for h in hour_stats %}
+                            <tr><td>{{ h.hour }}</td><td>{{ h.total_cheks }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-danger text-white">Muddatdan o'tgan mahsulotlar</div>
+                    <div class="card-body p-2">
+                        <ul class="list-group mb-0">
+                            {% for p in expired_products %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ p.desc }} <span class="badge bg-danger">{{ p.end_date }}</span>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">Barcha mahsulotlar muddati o'tmagan.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Top kassirlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-success text-white">Top kassirlar</div>
-                <div class="card-body">
-                    <table class="table table-sm table-bordered">
-                        <tr><th>Kassir</th><th>Cheklar soni</th><th>Umumiy summa</th></tr>
-                        {% for k in kassir_stats %}
-                        <tr>
-                            <td>{{ k.created_by__username }}</td>
-                            <td>{{ k.total_cheks }}</td>
-                            <td>{{ k.total_sum }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- Eng faol soatlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-warning">Eng faol soatlar</div>
-                <div class="card-body">
-                    <table class="table table-sm table-bordered">
-                        <tr><th>Soat</th><th>Cheklar soni</th></tr>
-                        {% for h in hour_stats %}
-                        <tr>
-                            <td>{{ h.hour }}</td>
-                            <td>{{ h.total_cheks }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- Muddatdan o'tgan mahsulotlar -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-danger text-white">Muddatdan o'tgan mahsulotlar</div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% for p in expired_products %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ p.desc }} <span class="badge bg-danger">{{ p.end_date }}</span>
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item">Barcha mahsulotlar muddati o‘tmagan.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+        <div class="d-grid gap-2 d-md-flex">
+            <a href="{% url 'kassa' %}" class="btn btn-outline-success btn-sm">Kassaga qaytish</a>
+            <a href="{% url 'admin_management' %}" class="btn btn-outline-primary btn-sm">Admin paneliga qaytish</a>
         </div>
     </div>
 </div>
-<a href="{% url 'kassa' %}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Kassaga qaytish</a>
-<a href="{% url 'admin_management' %}" style="padding: 10px 20px; background-color: #19a590; color: white; text-decoration: none; border-radius: 5px;">Admin paneliga qaytish</a>
-
-</body>
-</html>
+{% endblock %}

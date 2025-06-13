@@ -1,29 +1,34 @@
-<h2>Chek №{{ sale.id }} tafsiloti</h2>
-<p>Sana: {{ sale.created_at }}</p>
-<p>
-    Kassir:
-    {% if sale.created_by %}
-        {{ sale.created_by.username }}
-    {% else %}
-        —
-    {% endif %}
-</p>
-<table border="1" cellpadding="7" cellspacing="0">
-    <tr>
-        <th>Mahsulot</th>
-        <th>Miqdor</th>
-        <th>Narxi</th>
-        <th>Jami</th>
-    </tr>
-    {% for i in items %}
-    <tr>
-        <td>{{ i.product.desc }}</td>
-        <td>{{ i.quantity }}</td>
-        <td>{{ i.price }}</td>
-        <td>{{ i.price|floatformat:2|add:""|floatformat:2|add:i.quantity|floatformat:2 }}</td>
-        {# Agar narx*miqdor ko‘rsatilishi kerak bo‘lsa, quyidagidan foydalaning: #}
-        {# <td>{{ i.price|floatformat:2|mul:i.quantity|floatformat:2 }}</td> #}
-    </tr>
-    {% endfor %}
-</table>
-<a href="{% url 'admin_sales' %}">⬅️ Orqaga</a>
+{% extends 'base.html' %}
+{% block title %}Chek {{ sale.id }}{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <h4 class="card-title">Chek №{{ sale.id }}</h4>
+        <p>Sana: {{ sale.created_at }}</p>
+        <p>Kassir: {% if sale.created_by %}{{ sale.created_by.username }}{% else %}—{% endif %}</p>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mahsulot</th>
+                        <th>Miqdor</th>
+                        <th>Narxi</th>
+                        <th>Jami</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in items %}
+                    <tr>
+                        <td>{{ i.product.desc }}</td>
+                        <td>{{ i.quantity }}</td>
+                        <td>{{ i.price }}</td>
+                        <td>{{ i.price|floatformat:2|add:""|floatformat:2|add:i.quantity|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{% url 'admin_sales' %}" class="btn btn-secondary btn-sm mt-3">⬅️ Orqaga</a>
+    </div>
+</div>
+{% endblock %}
