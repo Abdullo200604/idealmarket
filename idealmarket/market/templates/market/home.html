@@ -3,25 +3,21 @@
 {% block content %}
 <div class="main-card text-center">
     <h2 class="mb-4">Xush kelibsiz, {{ user.get_full_name|default:user.username }}!</h2>
-    {% if user.is_superuser %}
-    <div class="row row-cols-1 row-cols-md-3 g-3 justify-content-center">
-        <div class="col"><a href="{% url 'admin_products' %}" class="btn btn-primary w-100">Mahsulotlar</a></div>
-        <div class="col"><a href="{% url 'admin_categories' %}" class="btn btn-info w-100">Kategoriyalar</a></div>
-        <div class="col"><a href="{% url 'admin_ombors' %}" class="btn btn-secondary w-100">Omborlar</a></div>
-        <div class="col"><a href="{% url 'admin_users' %}" class="btn btn-success w-100">Foydalanuvchilar</a></div>
-        <div class="col"><a href="{% url 'admin_groups' %}" class="btn btn-warning w-100">Guruhlar</a></div>
-        <div class="col"><a href="{% url 'admin_sales' %}" class="btn btn-danger w-100">Cheklar (sotuvlar)</a></div>
-        <div class="col"><a href="{% url 'statistics' %}" class="btn btn-outline-primary w-100">Statistika</a></div>
-        <div class="col"><a href="{% url 'kassa' %}" class="btn btn-outline-success w-100">Kassa oynasi</a></div>
-    </div>
-    {% elif user.groups.filter(name='Kassir').exists %}
-    <div class="row row-cols-1 row-cols-md-3 g-3 justify-content-center">
-        <div class="col"><a href="{% url 'kassa' %}" class="btn btn-success w-100">Kassa oynasi</a></div>
-        <div class="col"><a href="{% url 'sales_list' %}" class="btn btn-primary w-100">Cheklar</a></div>
-        <div class="col"><a href="{% url 'statistics' %}" class="btn btn-info w-100">Statistika</a></div>
+    {% if user.is_authenticated %}
+    <div class="row row-cols-1 row-cols-sm-2 g-3 justify-content-center">
+        {% if user.is_superuser %}
+        <div class="col">
+            <a href="{% url 'admin_management' %}" class="btn btn-primary btn-lg w-100"><i class="bi bi-gear me-2"></i>Admin Panel</a>
+        </div>
+        {% endif %}
+        {% if user.is_superuser or user.groups.filter(name='Kassir').exists %}
+        <div class="col">
+            <a href="{% url 'kassa' %}" class="btn btn-success btn-lg w-100"><i class="bi bi-cash-stack me-2"></i>Kassa</a>
+        </div>
+        {% endif %}
     </div>
     {% else %}
-        <div class="alert alert-warning mt-4">Sizga ruxsat yo‘q yoki login qilinmagan.</div>
+        <div class="alert alert-warning mt-4">Siz login qilinmagan.</div>
     {% endif %}
 </div>
 {% endblock %}
