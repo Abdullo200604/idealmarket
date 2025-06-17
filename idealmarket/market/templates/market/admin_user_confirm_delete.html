@@ -1,7 +1,14 @@
-<h2>Foydalanuvchini o‘chirish</h2>
-<p>Rostdan ham "{{ user_obj.username }}" foydalanuvchisini o‘chirmoqchimisiz?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" style="background-color: #d9534f; color: white; padding: 8px 16px; border-radius: 5px;">O‘chirish</button>
-    <a href="{% url 'admin_users' %}" style="background: #6c757d; color: #fff; padding: 8px 16px; border-radius: 5px;">Bekor qilish</a>
-</form>
+{% extends 'base.html' %}
+{% block title %}Foydalanuvchini o‘chirish{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body">
+        <p>Rostdan ham "{{ user_obj.username }}" foydalanuvchisini o‘chirmoqchimisiz?</p>
+        <form method="post" class="d-grid gap-2 d-md-flex">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+            <a href="{% url 'admin_users' %}" class="btn btn-secondary btn-sm ms-md-auto">Bekor</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

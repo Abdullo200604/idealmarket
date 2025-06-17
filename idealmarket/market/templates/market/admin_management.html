@@ -75,4 +75,21 @@
 
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+{% extends 'base.html' %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+<div class="card main-card">
+    <div class="card-body text-center">
+        <h2 class="mb-3">Admin Panel</h2>
+        <div class="d-grid gap-2 gap-md-3 d-md-flex justify-content-center">
+            <a href="{% url 'admin_products' %}" class="btn btn-primary btn-sm w-100">Mahsulotlar</a>
+            <a href="{% url 'admin_categories' %}" class="btn btn-info btn-sm w-100">Kategoriyalar</a>
+            <a href="{% url 'admin_users' %}" class="btn btn-success btn-sm w-100">Foydalanuvchilar</a>
+            <a href="{% url 'admin_groups' %}" class="btn btn-warning btn-sm w-100">Guruhlar</a>
+            <a href="{% url 'admin_ombors' %}" class="btn btn-secondary btn-sm w-100">Omborlar</a>
+            <a href="{% url 'admin_sales' %}" class="btn btn-danger btn-sm w-100">Sotuvlar</a>
+            <a href="{% url 'statistics' %}" class="btn btn-outline-primary btn-sm w-100">Statistika</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

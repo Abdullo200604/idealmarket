@@ -1,7 +1,13 @@
-<h2>Omborni tahrirlash</h2>
-<form method="post">
+{% extends 'base.html' %}
+{% block title %}Ombor tahrirlash{% endblock %}
+{% block content %}
+<h2 class="mb-3">Omborni tahrirlash</h2>
+<form method="post" class="card card-body main-card d-grid gap-2">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" style="background-color: #0275d8; color: white; padding: 8px 16px; border: none; border-radius: 5px;">Saqlash</button>
-    <a href="{% url 'admin_ombors' %}" style="padding: 8px 16px; background-color: #6c757d; color: white; border-radius: 5px; text-decoration: none;">Bekor qilish</a>
+    <div class="d-grid gap-2 d-md-flex">
+        <button type="submit" class="btn btn-primary btn-sm">Saqlash</button>
+        <a href="{% url 'admin_ombors' %}" class="btn btn-secondary btn-sm ms-md-auto">Bekor qilish</a>
+    </div>
 </form>
+{% endblock %}
